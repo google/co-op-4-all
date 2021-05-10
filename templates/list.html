@@ -1,0 +1,33 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="mdl-grid mdl-grid--center">
+    <!-- Textfield with Floating Label -->
+    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp mdl-cell--8-col">
+        <thead>
+            <tr>
+                <th class="mdl-data-table__cell--non-numeric">Campaign Name</th>
+                <th class="mdl-data-table__cell--non-numeric">Retailer Name</th>
+                <th class="mdl-data-table__cell--non-numeric">Created At</th>
+                <th class="mdl-data-table__cell--non-numeric">Filter Type</th>
+                <th class="mdl-data-table__cell--non-numeric">Google Ads Account</th>
+                <th class="mdl-data-table__cell--non-numeric">DV360 Account</th>
+                <th class="mdl-data-table__cell--non-numeric">Is Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for config in configs %}
+            <tr>
+                <td> {{ config['name'] }} </td>
+                <td> {{ config['retailer_name'] }} </td>
+                <td> {{ config['created_at'] }} </td>
+                <td> {{ config['product_filter_type'] }} </td>
+                <td> {{ config['ads_account_id'] }} </td>
+                <td> {{ config['cm_profile_id'] }} </td>
+                <td> {{ config['is_active'] }} </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}

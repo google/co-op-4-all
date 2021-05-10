@@ -1,0 +1,114 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="mdl-grid mdl-grid--center">
+    <!-- Textfield with Floating Label -->
+    <div class="mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--8-col">
+        <form action="/new_campaign" method="POST" id="c_form">
+
+            <div class="content-grid mdl-grid">
+                <div class="mdl-cell">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" id="name" name="name">
+                        <label class="mdl-textfield__label" for="name">Name</label>
+                    </div>
+                </div>
+                <div class="mdl-cell">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" id="retailer_name" name="retailer_name">
+                        <label class="mdl-textfield__label" for="retailer_name">Retailer Name</label>
+                    </div>
+                </div>
+                <div class="mdl-cell">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <textarea class="mdl-textfield__input" type="text" id="utm_campaigns" name="utm_campaigns" rows=2></textarea>
+                        <label class="mdl-textfield__label" for="utm_campaigns">UTM Campaign Filter</label>
+                    </div>
+                </div>
+                <div class="mdl-cell">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <textarea class="mdl-textfield__input" type="text" id="products" name="products" rows=2></textarea>
+                        <label class="mdl-textfield__label" for="products">Product Filter</label>
+                    </div>
+                </div>
+                <div class="mdl-cell">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" id="product_filter_type" name="product_filter_type">
+                        <label class="mdl-textfield__label" for="product_filter_type">Product Filter Type</label>
+                    </div>
+                </div>
+                <div class="mdl-cell">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" id="ga_datasource" name="ga_datasource">
+                        <label class="mdl-textfield__label" for="ga_datasource">Google Analytics Table</label>
+                    </div>
+                </div>
+                <div class="mdl-cell">
+                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="ads_destination">
+                        <input type="checkbox" id="ads_destination" name="ads_destination" class="mdl-checkbox__input" unchecked>
+                        <span class="mdl-checkbox__label">Import conversions to Ads</span>
+                      </label>
+                </div>
+                <div class="mdl-cell">
+                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="dv_destination">
+                        <input type="checkbox" id="dv_destination" name="dv_destination" class="mdl-checkbox__input" unchecked>
+                        <span class="mdl-checkbox__label">Import conversions to DV360</span>
+                      </label>
+                </div>
+                <div class="mdl-cell">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" id="ads_account" name="ads_account">
+                        <label class="mdl-textfield__label" for="ads_account">Google Ads Account ID</label>
+                    </div>
+                </div>
+                <div class="mdl-cell">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" id="floodlight_activity_id" name="floodlight_activity_id">
+                        <label class="mdl-textfield__label" for="floodlight_activity_id">Floodlight Activity ID</label>
+                    </div>
+                </div>
+                <div class="mdl-cell">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" id="floodlight_config_id" name="floodlight_config_id">
+                        <label class="mdl-textfield__label" for="floodlight_config_id">Floodlight Configuration ID</label>
+                    </div>
+                </div>
+                <div class="mdl-cell">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" id="cm_profile_id" name="cm_profile_id">
+                        <label class="mdl-textfield__label" for="cm_profile_id">CM Profile ID</label>
+                    </div>
+                </div>
+                <div class="mdl-cell"></div>
+                <div class="mdl-cell"></div>
+                <div class="mdl-cell mdl-cell--center">
+                    <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-cell--8-col">
+                        SAVE
+                      </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        function handleSubmit(event) {
+            event.preventDefault();
+            const data = new FormData(event.target);
+            const value = Object.fromEntries(data.entries());
+            value.topics = data.getAll("topics");
+            value.utm_campaigns = value.utm_campaigns.split("\n");
+            value.products = value.products.split("\n");
+            $.ajax({
+                type: 'POST',
+                url: '/campaigns',
+                dataType: 'json',
+                data: JSON.stringify(value),
+                contentType: 'application/json',
+                success: function(data) {
+                    alert(data)
+                }
+            });
+        }
+        const form = document.querySelector("form");
+        form.addEventListener("submit", handleSubmit);
+    </script>
+</div>
+{% endblock %}
