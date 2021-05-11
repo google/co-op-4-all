@@ -2,6 +2,8 @@
 
 This solution helps manufacturers and retailers to make joint advertising campaigns by bringing transparency to the reporting of the conversion results of these campaigns.
 
+**This is not an officially supported Google product**
+
 ### Prerequisites
 
 - Google Cloud Platform
