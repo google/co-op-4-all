@@ -13,33 +13,27 @@
 # limitations under the License.
 
 import os
-from models import GoopConfig
-from flask import Flask, render_template, jsonify, request, abort
+from pydantic import ValidationError
+from models import CoopCampaignConfig
+from flask import Flask, jsonify, request, abort
 
 
 app = Flask(__name__)
 
 
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-
-@app.route("/new_campaign", methods=["GET"])
-def new_campaign():
-    return render_template("new.html")
-
-
 @app.route("/campaigns", methods=["GET"])
 def list_campaigns():
-    configs = GoopConfig.get_all()
-    return render_template("list.html", configs=configs)
+    configs = CoopCampaignConfig.get_all()
+    return jsonify(configs)
 
 
 @app.route("/campaigns", methods=["POST"])
 def add_campaign():
     data = dict(request.json)
-    config = GoopConfig(**data)
+    try:
+        config = CoopCampaignConfig(**data)
+    except ValidationError as e:
+        return jsonify(e.json())
     new_config = config.add()
     if not new_config:
         abort(409)
@@ -48,7 +42,7 @@ def add_campaign():
 
 @app.route("/campaigns/<string:name>", methods=["GET"])
 def get_campaign(name):
-    config = GoopConfig.get(name)
+    config = CoopCampaignConfig.get(name)
     if not config:
         abort(404)
     return jsonify(config)
@@ -57,21 +51,23 @@ def get_campaign(name):
 @app.route("/campaigns/<string:name>", methods=["PUT"])
 def update_campaign(name):
     data = dict(request.json)
-    config = GoopConfig(**data)
+    try:
+        config = CoopCampaignConfig(**data)
+    except ValidationError as e:
+        return jsonify(e.json())
     update = config.update(name)
     if not update:
         abort(404)
     return "", 200
 
 
-@app.route("/logs")
-def logs():
-    return render_template("logs.html")
-
-
-@app.route("/configuration")
-def configuration():
-    return render_template("config.html")
+@app.route("/campaigns/<string:name>", methods=["DELETE"])
+def delete_campaign(name):
+    config = CoopCampaignConfig.get(name)
+    if not config:
+        abort(404)
+    CoopCampaignConfig.delete(name)
+    return "", 204
 
 
 if __name__ == "__main__":

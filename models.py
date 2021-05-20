@@ -13,9 +13,10 @@
 # limitations under the License.
 
 from datetime import datetime
-from typing import Literal
-from pydantic import BaseModel, constr, conlist, Field
+from typing import Literal, List, Optional, Union
+from pydantic import BaseModel, constr, conint, conlist, Field
 from google.cloud import datastore
+
 
 db_client = datastore.Client()
 
@@ -33,6 +34,11 @@ class DbModel(BaseModel):
         result = db_client.get(key)
         return result
 
+    @classmethod
+    def delete(cls, name):
+        key = db_client.key(cls.__name__, name)
+        db_client.delete(key)
+
     def add(self):
         with db_client.transaction() as t:
             key = db_client.key(self.__class__.__name__, self.name)
@@ -40,40 +46,56 @@ class DbModel(BaseModel):
             if entity:
                 return None
             entity = datastore.Entity(key)
-            entity.update(self.dict())
+            entity.update(self.dict(exclude_unset=True))
             t.put(entity)
         return entity
 
     def update(self, name):
+        self.name = name
         with db_client.transaction() as t:
             key = db_client.key(self.__class__.__name__, name)
             entity = db_client.get(key)
             if not entity:
                 return None
             entity = datastore.Entity(key)
-            entity.update(self.dict())
+            entity.update(self.dict(exclude_unset=True))
             t.put(entity)
         return entity
 
 
+class Filter(BaseModel):
+    type: str
+    data: conlist(str, min_items=1)
+
+
+class GoogleAdsDestination(BaseModel):
+    type: Literal["google_ads"]
+    google_ads_customer_id: constr(regex="^[0-9\-]{11}$")
+
+
+class Dv360Destination(BaseModel):
+    type: Literal["dv360"]
+    floodlight_activity_id: constr(regex="^[0-9]{3,11}$")
+    floodlight_configuration_id: constr(regex="^[0-9]{3,11}$")
+    cm_profile_id: constr(regex="^[0-9]{3,11}$")
+
+
 class RetailerConfig(DbModel):
-    name: constr(regex="^[A-Za-z0-9\_ ]{3,50}$")
+    name: constr(regex="^[A-Za-z0-9\_]{3,50}$")
     bq_ga_table: constr(regex="^[A-Za-z0-9\-\.]{10,50}events_$")
     bq_retailer_dataset: constr(regex="^[A-Za-z0-9\_]{3,50}$")
     time_zone: constr(regex="^[A-Za-z\_\/]{3,25}$")
-    max_backfill: int = 60
+    max_backfill: int = 3
     is_active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
-class GoopConfig(DbModel):
+class CoopCampaignConfig(DbModel):
     name: constr(regex="^[A-Za-z0-9\_]{3,50}$")
-    retailer_name: constr(regex="^[A-Za-z0-9\_ ]{3,50}$")
-    product_filter_type:  Literal["sku", "product_id", "product_name"]
+    retailer_name: constr(regex="^[A-Za-z0-9\_]{3,50}$")
     utm_campaigns: conlist(str, min_items=1)
-    products: conlist(str, min_items=1)
-    created_at: datetime = Field(default_factory=datetime.now)
-    ads_account_id: constr(regex="^[0-9\-]{11}$")
-    floodlight_activit_id: constr(regex="^[0-9]{3,11}$") = None
-    floodlight_config_id: constr(regex="^[0-9]{3,11}$") = None
-    cm_profile_id: constr(regex="^[0-9]{3,11}$") = None
+    filters: List[Filter]
+    destinations: Optional[List[Union[GoogleAdsDestination, Dv360Destination]]]
+    attribution_window: conint(gt=1, lt=30) = 7
     is_active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
