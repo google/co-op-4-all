@@ -48,3 +48,10 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+# Terraform
+terraform.tfvars
+.terraform*
+terraform.tfstate
+terraform.tfstate.backup
+co-op-4-all.zip
