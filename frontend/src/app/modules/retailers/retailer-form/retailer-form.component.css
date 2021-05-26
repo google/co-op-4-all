@@ -1,0 +1,31 @@
+.retailer-form-container {
+    margin-top:30px;
+}
+
+.retailer-form-item {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.retailer-form-item div {
+    width: 100px;
+    margin-top: 28px;
+}
+
+.retailer-form-item .no-mat-form-field {
+    margin: 28px 0px 0px 10px;
+}
+
+.retailer-form-item mat-form-field {
+    margin: 10px 0px 0px 10px;
+    width: 280px;
+}
+
+.retailer-form-buttons-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.retailer-form-buttons-container button {
+    margin: 10px 0px 0px 10px;
+}

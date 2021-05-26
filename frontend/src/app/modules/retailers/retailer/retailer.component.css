@@ -1,0 +1,28 @@
+.card-header-image {
+    background-image: url('../../../../assets/retailer.png');
+    background-size: cover;
+}
+
+.card-content-container {
+    width: 1120px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.card-content-item-container {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.card-content-buttons-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.card-content-buttons-container button {
+    margin-left: 10px;
+}
+
+.card-content-item-container p {
+    margin-left: 40px;
+}
