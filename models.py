@@ -14,7 +14,7 @@
 
 from datetime import datetime
 from typing import Literal, List, Optional, Union
-from pydantic import BaseModel, constr, conint, conlist, Field
+from pydantic import BaseModel, constr, conint, conlist, Field, validator
 from google.cloud import datastore
 
 
@@ -46,7 +46,7 @@ class DbModel(BaseModel):
             if entity:
                 return None
             entity = datastore.Entity(key)
-            entity.update(self.dict(exclude_unset=True))
+            entity.update(self.dict(exclude_none=True))
             t.put(entity)
         return entity
 
@@ -58,7 +58,7 @@ class DbModel(BaseModel):
             if not entity:
                 return None
             entity = datastore.Entity(key)
-            entity.update(self.dict(exclude_unset=True))
+            entity.update(self.dict(exclude_none=True))
             t.put(entity)
         return entity
 
@@ -83,11 +83,16 @@ class Dv360Destination(BaseModel):
 class RetailerConfig(DbModel):
     name: constr(regex="^[A-Za-z0-9\_]{3,50}$")
     bq_ga_table: constr(regex="^[A-Za-z0-9\-\.]{10,50}events_$")
-    bq_retailer_dataset: constr(regex="^[A-Za-z0-9\_]{3,50}$")
+    bq_dataset: constr(regex="^[A-Za-z0-9\_]{3,50}$")
     time_zone: constr(regex="^[A-Za-z\_\/]{3,25}$")
     max_backfill: int = 3
     is_active: bool = True
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = None
+    modified_at: datetime = Field(default_factory=datetime.utcnow)
+
+    @validator('created_at', pre=True, always=True)
+    def default_ts_created(cls, v):
+        return v or datetime.utcnow()
 
 
 class CoopCampaignConfig(DbModel):
@@ -98,4 +103,9 @@ class CoopCampaignConfig(DbModel):
     destinations: Optional[List[Union[GoogleAdsDestination, Dv360Destination]]]
     attribution_window: conint(gt=1, lt=30) = 7
     is_active: bool = True
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = None
+    modified_at: datetime = Field(default_factory=datetime.utcnow)
+
+    @validator('created_at', pre=True, always=True)
+    def default_ts_created(cls, v):
+        return v or datetime.utcnow()

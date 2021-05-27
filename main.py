@@ -14,7 +14,7 @@
 
 import os
 from pydantic import ValidationError
-from models import CoopCampaignConfig
+from models import CoopCampaignConfig, RetailerConfig
 from flask import Flask, jsonify, request, abort
 
 
@@ -67,6 +67,55 @@ def delete_campaign(name):
     if not config:
         abort(404)
     CoopCampaignConfig.delete(name)
+    return "", 204
+
+
+@app.route("/retailers", methods=["GET"])
+def list_retailers():
+    configs = RetailerConfig.get_all()
+    return jsonify(configs)
+
+
+@app.route("/retailers", methods=["POST"])
+def add_retailer():
+    data = dict(request.json)
+    try:
+        config = RetailerConfig(**data)
+    except ValidationError as e:
+        return jsonify(e.json())
+    new_config = config.add()
+    if not new_config:
+        abort(409)
+    return "", 201
+
+
+@app.route("/retailers/<string:name>", methods=["GET"])
+def get_retailer(name):
+    config = RetailerConfig.get(name)
+    if not config:
+        abort(404)
+    return jsonify(config)
+
+
+@app.route("/retailers/<string:name>", methods=["PUT"])
+def update_retailer(name):
+    data = dict(request.json)
+    try:
+        config = RetailerConfig(**data)
+    except ValidationError as e:
+        return jsonify(e.json())
+    update = config.update(name)
+    if not update:
+        abort(404)
+    return "", 200
+
+
+@app.route("/retailers/<string:name>", methods=["DELETE"])
+def delete_retailer(name):
+    config = RetailerConfig.get(name)
+    if not config:
+        abort(404)
+    RetailerConfig.delete(name)
     return "", 204
 
 
