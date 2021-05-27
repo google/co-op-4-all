@@ -1,0 +1,9 @@
+<nav mat-tab-nav-bar>
+    <a mat-tab-link *ngFor="let link of links"
+    [routerLink]="link.route"
+    (click)="activeLink = link.link"
+    [active]="activeLink == link.link"> {{link.link}} </a>
+</nav>
+<div class="large-box mat-elevation-z4">
+    <router-outlet></router-outlet>
+</div>
