@@ -20,7 +20,7 @@ export class RetailerComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  removeRetailer(name: string) {
+  deleteRetailer(name: string) {
     this.newItemEvent.emit(name);
   }
 

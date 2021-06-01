@@ -1,19 +1,21 @@
 export class Retailer {
     name: string;
-    createdAt: string;
-    bqGaTable: string;
-    bqDataSet: string;
-    timezone: string;
-    maxBackfill: number;
-    active: boolean;
+    created_at: string;
+    bq_ga_table: string;
+    bq_dataset: string;
+    time_zone: string;
+    max_backfill: number;
+    is_active: boolean;
+    modified_at?: string;
 
     constructor() {
         this.name = '';
-        this.createdAt = '';
-        this.bqGaTable = '';
-        this.bqDataSet = '';
-        this.timezone = '';
-        this.maxBackfill = 3;
-        this.active = true;
+        this.created_at = '';
+        this.bq_ga_table = '';
+        this.bq_dataset = '';
+        this.time_zone = '';
+        this.max_backfill = 3;
+        this.is_active = true;
+        this.modified_at = '';
     }
 }

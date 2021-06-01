@@ -21,6 +21,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 import { NgModule } from '@angular/core';
 
@@ -33,7 +35,9 @@ import { NgModule } from '@angular/core';
     MatInputModule,
     MatCardModule,
     MatButtonModule,
-    MatDividerModule
+    MatDividerModule,
+    MatSlideToggleModule,
+    MatSnackBarModule
   ],
   declarations: [
 
@@ -46,7 +50,9 @@ import { NgModule } from '@angular/core';
     MatInputModule,
     MatCardModule,
     MatButtonModule,
-    MatDividerModule
+    MatDividerModule,
+    MatSlideToggleModule,
+    MatSnackBarModule
   ]
 })
 export class SharedModule { }

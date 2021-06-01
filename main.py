@@ -21,13 +21,13 @@ from flask import Flask, jsonify, request, abort
 app = Flask(__name__)
 
 
-@app.route("/campaigns", methods=["GET"])
+@app.route("/api/campaigns", methods=["GET"])
 def list_campaigns():
     configs = CoopCampaignConfig.get_all()
     return jsonify(configs)
 
 
-@app.route("/campaigns", methods=["POST"])
+@app.route("/api/campaigns", methods=["POST"])
 def add_campaign():
     data = dict(request.json)
     try:
@@ -40,7 +40,7 @@ def add_campaign():
     return "", 201
 
 
-@app.route("/campaigns/<string:name>", methods=["GET"])
+@app.route("/api/campaigns/<string:name>", methods=["GET"])
 def get_campaign(name):
     config = CoopCampaignConfig.get(name)
     if not config:
@@ -48,7 +48,7 @@ def get_campaign(name):
     return jsonify(config)
 
 
-@app.route("/campaigns/<string:name>", methods=["PUT"])
+@app.route("/api/campaigns/<string:name>", methods=["PUT"])
 def update_campaign(name):
     data = dict(request.json)
     try:
@@ -61,7 +61,7 @@ def update_campaign(name):
     return "", 200
 
 
-@app.route("/campaigns/<string:name>", methods=["DELETE"])
+@app.route("/api/campaigns/<string:name>", methods=["DELETE"])
 def delete_campaign(name):
     config = CoopCampaignConfig.get(name)
     if not config:
@@ -70,13 +70,13 @@ def delete_campaign(name):
     return "", 204
 
 
-@app.route("/retailers", methods=["GET"])
+@app.route("/api/retailers", methods=["GET"])
 def list_retailers():
     configs = RetailerConfig.get_all()
     return jsonify(configs)
 
 
-@app.route("/retailers", methods=["POST"])
+@app.route("/api/retailers", methods=["POST"])
 def add_retailer():
     data = dict(request.json)
     try:
@@ -89,7 +89,7 @@ def add_retailer():
     return "", 201
 
 
-@app.route("/retailers/<string:name>", methods=["GET"])
+@app.route("/api/retailers/<string:name>", methods=["GET"])
 def get_retailer(name):
     config = RetailerConfig.get(name)
     if not config:
@@ -97,7 +97,7 @@ def get_retailer(name):
     return jsonify(config)
 
 
-@app.route("/retailers/<string:name>", methods=["PUT"])
+@app.route("/api/retailers/<string:name>", methods=["PUT"])
 def update_retailer(name):
     data = dict(request.json)
     try:
@@ -110,7 +110,7 @@ def update_retailer(name):
     return "", 200
 
 
-@app.route("/retailers/<string:name>", methods=["DELETE"])
+@app.route("/api/retailers/<string:name>", methods=["DELETE"])
 def delete_retailer(name):
     config = RetailerConfig.get(name)
     if not config:

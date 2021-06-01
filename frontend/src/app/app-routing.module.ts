@@ -6,7 +6,8 @@ import { CoopConfigurationFormComponent } from './modules/co-op-configurations/c
 
 const routes: Routes = [{
   path: 'retailers',
-  component: RetailersComponent
+  component: RetailersComponent,
+  pathMatch: 'full'
 },
 {
   path: 'co-op-configurations',

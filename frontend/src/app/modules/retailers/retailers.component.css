@@ -2,3 +2,15 @@
     display: flex;
     justify-content: flex-end;
 }
+
+.no-retailers {
+    margin-top: 50px;
+}
+
+.no-retailers span {
+    padding: 45%;
+}
+
+.no-retailers div {
+    padding: 1%;
+}

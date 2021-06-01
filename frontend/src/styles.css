@@ -20,12 +20,16 @@ body {
   }
 
 .large-box {
-    height: 550px;
-    width: 1200px;
-    margin: 25px auto;
+    height: auto;
+    width: 70%;
+    margin: 1% auto;
 }
 
 .card {
     max-width: 1200px;
     margin-top: 20px;
+}
+
+app-retailers {
+    width: 90%;
 }

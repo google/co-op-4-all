@@ -12,19 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+service: api-service
+
 runtime: python39
 
 handlers:
-  # This configures Google App Engine to serve the files in the app's dist
-  # directory.
-  - url: /
-    static_files: frontend/dist/index.html
-    upload: frontend/dist/index.html
-  - url: /
-    static_dir: frontend/dist
-
-  # This handler routes all requests not caught above to your main app. It is
-  # required when static routes are defined, but can be omitted (along with
-  # the entire handlers section) when there are no static files defined.
-  - url: /.*
-    script: auto
+- url: /.*
+  script: auto

@@ -83,7 +83,6 @@ class Dv360Destination(BaseModel):
 class RetailerConfig(DbModel):
     name: constr(regex="^[A-Za-z0-9\_]{3,50}$")
     bq_ga_table: constr(regex="^[A-Za-z0-9\-\.]{10,50}events_$")
-    bq_dataset: constr(regex="^[A-Za-z0-9\_]{3,50}$")
     time_zone: constr(regex="^[A-Za-z\_\/]{3,25}$")
     max_backfill: int = 3
     is_active: bool = True

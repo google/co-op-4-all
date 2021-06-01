@@ -15,7 +15,7 @@
 
 # Python pycache:
 __pycache__/
-.venv
+../venv
 
 # Ignored by the build system
 /setup.cfg
@@ -27,7 +27,7 @@ __pycache__/
 /bazel-out
 
 # dependencies
-/frontend/node_modules
+/node_modules
 
 # profiling files
 chrome-profiler-events*.json
@@ -42,12 +42,12 @@ chrome-profiler-events*.json
 *.sublime-workspace
 
 # IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-.history/*
+../vscode/*
+!../vscode/settings.json
+!../vscode/tasks.json
+!../vscode/launch.json
+!../vscode/extensions.json
+../history/*
 
 # misc
 /.sass-cache

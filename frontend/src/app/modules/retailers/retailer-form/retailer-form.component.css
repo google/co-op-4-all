@@ -4,7 +4,7 @@
 
 .retailer-form-item {
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-end;
 }
 
 .retailer-form-item div {
@@ -17,8 +17,12 @@
 }
 
 .retailer-form-item mat-form-field {
-    margin: 10px 0px 0px 10px;
-    width: 280px;
+    margin: 20px 0px 0px 10px;
+    width: 300px;
+}
+
+.retailer-form-item mat-slide-toggle {
+    margin: 20px 0px 0px 10px;
 }
 
 .retailer-form-buttons-container {
@@ -27,5 +31,5 @@
 }
 
 .retailer-form-buttons-container button {
-    margin: 10px 0px 0px 10px;
+    margin: 20px 0px 0px 10px;
 }

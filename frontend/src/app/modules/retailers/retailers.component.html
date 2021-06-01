@@ -1,8 +1,12 @@
-
 <div class="add-retailer-button-container">
     <button mat-raised-button color="primary" routerLink="/retailers/new">
         <mat-icon>add</mat-icon>
         Add Retailer
     </button>
 </div>
-<app-retailer *ngFor= "let ret of retailers" [retailer]="ret" (newItemEvent)="removeRetailer($event)"></app-retailer>
+<app-retailer *ngFor= "let ret of retailers" [retailer]="ret" (newItemEvent)="deleteRetailer($event)"></app-retailer>
+<div *ngIf="retailers.length === 0" class="no-retailers">
+    <mat-divider></mat-divider>
+        <div><span>--- No retailers ---</span></div>
+    <mat-divider></mat-divider>
+</div>
