@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Literal, List, Optional, Union
-from pydantic import BaseModel, constr, conint, conlist, Field, validator
+from pydantic import BaseModel, constr, conint, conlist, validator
 from google.cloud import datastore
 
 
@@ -43,24 +43,22 @@ class DbModel(BaseModel):
         with db_client.transaction() as t:
             key = db_client.key(self.__class__.__name__, self.name)
             entity = db_client.get(key)
-            if entity:
-                return None
-            entity = datastore.Entity(key)
-            entity.update(self.dict(exclude_none=True))
-            t.put(entity)
-        return entity
+            if not entity:
+                entity = datastore.Entity(key)
+                entity.update(self.dict(exclude_none=True))
+                t.put(entity)
+                return entity
 
     def update(self, name):
         self.name = name
         with db_client.transaction() as t:
             key = db_client.key(self.__class__.__name__, name)
             entity = db_client.get(key)
-            if not entity:
-                return None
-            entity = datastore.Entity(key)
-            entity.update(self.dict(exclude_none=True))
-            t.put(entity)
-        return entity
+            if entity:
+                entity = datastore.Entity(key)
+                entity.update(self.dict(exclude_none=True))
+                t.put(entity)
+                return entity
 
 
 class Filter(BaseModel):
@@ -70,7 +68,7 @@ class Filter(BaseModel):
 
 class GoogleAdsDestination(BaseModel):
     type: Literal["google_ads"]
-    google_ads_customer_id: constr(regex="^[0-9\-]{11}$")
+    customer_id: constr(regex="^[0-9\-]{11}$")
 
 
 class Dv360Destination(BaseModel):
@@ -84,14 +82,19 @@ class RetailerConfig(DbModel):
     name: constr(regex="^[A-Za-z0-9\_]{3,50}$")
     bq_ga_table: constr(regex="^[A-Za-z0-9\-\.]{10,50}events_$")
     time_zone: constr(regex="^[A-Za-z\_\/]{3,25}$")
-    max_backfill: int = 3
+    max_backfill: conint(gt=30, lt=180) = 90
     is_active: bool = True
     created_at: datetime = None
-    modified_at: datetime = Field(default_factory=datetime.utcnow)
+    modified_at: datetime = None
+    bq_updated_at: datetime = None
 
     @validator('created_at', pre=True, always=True)
     def default_ts_created(cls, v):
-        return v or datetime.utcnow()
+        return v or datetime.now(timezone.utc)
+
+    @validator('modified_at', pre=True, always=True)
+    def default_ts_updated(cls, v):
+        return datetime.now(timezone.utc)
 
 
 class CoopCampaignConfig(DbModel):
@@ -103,8 +106,13 @@ class CoopCampaignConfig(DbModel):
     attribution_window: conint(gt=1, lt=30) = 7
     is_active: bool = True
     created_at: datetime = None
-    modified_at: datetime = Field(default_factory=datetime.utcnow)
+    modified_at: datetime = None
+    bq_updated_at: datetime = None
 
     @validator('created_at', pre=True, always=True)
     def default_ts_created(cls, v):
-        return v or datetime.utcnow()
+        return v or datetime.now(timezone.utc)
+
+    @validator('modified_at', pre=True, always=True)
+    def default_ts_updated(cls, v):
+        return datetime.now(timezone.utc)

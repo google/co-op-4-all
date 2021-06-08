@@ -13,12 +13,25 @@
 # limitations under the License.
 
 import os
+from datetime import date
 from pydantic import ValidationError
 from models import CoopCampaignConfig, RetailerConfig
 from flask import Flask, jsonify, request, abort
+from flask.json import JSONEncoder
 
 
-app = Flask(__name__)
+class CustomJSONEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, date):
+            return obj.isoformat()
+        return super().default(obj)
+
+
+class CustomFlask(Flask):
+    json_encoder = CustomJSONEncoder
+
+
+app = CustomFlask(__name__)
 
 
 @app.route("/api/campaigns", methods=["GET"])
