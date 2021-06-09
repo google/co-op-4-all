@@ -13,52 +13,12 @@
 # limitations under the License.
 
 from datetime import datetime, timezone
-from typing import Literal, List, Optional, Union
-from pydantic import BaseModel, constr, conint, conlist, validator
-from google.cloud import datastore
+from typing import List, Optional, Union
 
+from pydantic import BaseModel, conint, conlist, constr, validator
 
-db_client = datastore.Client()
-
-
-class DbModel(BaseModel):
-    @classmethod
-    def get_all(cls):
-        query = db_client.query(kind=cls.__name__)
-        results = list(query.fetch())
-        return results
-
-    @classmethod
-    def get(cls, name):
-        key = db_client.key(cls.__name__, name)
-        result = db_client.get(key)
-        return result
-
-    @classmethod
-    def delete(cls, name):
-        key = db_client.key(cls.__name__, name)
-        db_client.delete(key)
-
-    def add(self):
-        with db_client.transaction() as t:
-            key = db_client.key(self.__class__.__name__, self.name)
-            entity = db_client.get(key)
-            if not entity:
-                entity = datastore.Entity(key)
-                entity.update(self.dict(exclude_none=True))
-                t.put(entity)
-                return entity
-
-    def update(self, name):
-        self.name = name
-        with db_client.transaction() as t:
-            key = db_client.key(self.__class__.__name__, name)
-            entity = db_client.get(key)
-            if entity:
-                entity = datastore.Entity(key)
-                entity.update(self.dict(exclude_none=True))
-                t.put(entity)
-                return entity
+from models.database import DbModel
+from models.destinations import Dv360Destination, GoogleAdsDestination
 
 
 class Filter(BaseModel):
@@ -66,23 +26,11 @@ class Filter(BaseModel):
     data: conlist(str, min_items=1)
 
 
-class GoogleAdsDestination(BaseModel):
-    type: Literal["google_ads"]
-    customer_id: constr(regex="^[0-9\-]{11}$")
-
-
-class Dv360Destination(BaseModel):
-    type: Literal["dv360"]
-    floodlight_activity_id: constr(regex="^[0-9]{3,11}$")
-    floodlight_configuration_id: constr(regex="^[0-9]{3,11}$")
-    cm_profile_id: constr(regex="^[0-9]{3,11}$")
-
-
 class RetailerConfig(DbModel):
     name: constr(regex="^[A-Za-z0-9\_]{3,50}$")
     bq_ga_table: constr(regex="^[A-Za-z0-9\-\.]{10,50}events_$")
     time_zone: constr(regex="^[A-Za-z\_\/]{3,25}$")
-    max_backfill: conint(gt=30, lt=180) = 90
+    max_backfill: conint(gt=30, le=180) = 90
     is_active: bool = True
     created_at: datetime = None
     modified_at: datetime = None
@@ -103,7 +51,7 @@ class CoopCampaignConfig(DbModel):
     utm_campaigns: conlist(str, min_items=1)
     filters: List[Filter]
     destinations: Optional[List[Union[GoogleAdsDestination, Dv360Destination]]]
-    attribution_window: conint(gt=1, lt=30) = 7
+    attribution_window: conint(gt=1, le=30) = 7
     is_active: bool = True
     created_at: datetime = None
     modified_at: datetime = None
