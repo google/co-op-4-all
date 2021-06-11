@@ -1,1 +1,165 @@
-<p>co-op-configuration-form works!</p>
+<h1>{{ title }}</h1>
+<mat-divider></mat-divider>
+<mat-divider></mat-divider>
+<form class="form-container" [formGroup]="coopConfigurationForm" (ngSubmit)="save()">
+    <div class="form-item">
+        <div><label>Co-Op Config Name</label></div>
+        <mat-form-field appearance="legacy">
+            <mat-label>Co-Op Configuration Name</mat-label>
+            <input matInput formControlName="name">
+            <mat-icon matSuffix>settings</mat-icon>
+            <mat-hint *ngIf="isInvalidInput('name')">
+                Please enter a valid Co-Op Configuration Name
+            </mat-hint>
+        </mat-form-field>
+    </div>
+    <div class="form-item">
+        <div><label>Retailer Name</label></div>
+        <mat-form-field appearance="legacy">
+            <mat-label>Retailer Name</mat-label>
+            <mat-select formControlName="retailer_name">
+                <mat-option *ngFor="let retailer of retailers" [value]="retailer.name">
+                    {{retailer.name}}
+                </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>store</mat-icon>
+            <mat-hint
+                *ngIf="isInvalidInput('retailer_name')">
+                Please enter a valid Retailer Name
+            </mat-hint>
+        </mat-form-field>
+    </div>
+    <div class="form-item">
+        <div><label>Attribution Window</label></div>
+        <mat-form-field appearance="legacy">
+            <mat-label>Attribution Window</mat-label>
+            <input matInput formControlName="attribution_window">
+            <mat-icon matSuffix>check</mat-icon>
+            <mat-hint
+                *ngIf="isInvalidInput('attribution_window')">
+                Please enter a valid Attribution Window
+            </mat-hint>
+        </mat-form-field>
+    </div>
+    <div class="form-item">
+        <div><label>UTM Campaigns</label></div>
+        <mat-form-field appearance="legacy">
+            <mat-label>UTM Campaigns</mat-label>
+            <textarea matInput rows="5" placeholder="Ex. Campaign 1" formControlName="utm_campaigns"></textarea>
+            <mat-hint
+            *ngIf="!isInvalidInput('utm_campaigns')">
+                Please add one UTM campaign per row
+            </mat-hint>
+            <mat-hint
+            *ngIf="isInvalidInput('utm_campaigns')">
+                Please enter valid UTM Campaigns
+            </mat-hint>
+        </mat-form-field>
+    </div>
+    <div class="form-group" formGroupName="filters">
+        <div class="form-item">
+            <div><label>Filters</label></div>
+            <mat-form-field appearance="legacy">
+                <mat-label>Filters</mat-label>
+                <mat-select formControlName="types" multiple>
+                    <mat-option *ngFor="let filterType of filterTypeOptions"
+                    [value]="filterType.value"
+                    (onSelectionChange)="onChangeFilters($event)">
+                    {{ filterType.label }}
+                </mat-option>
+                </mat-select>
+                <mat-hint
+                    *ngIf="isInvalidInput('filters.types')">
+                    Please select at least one filter
+                </mat-hint>
+            </mat-form-field>
+        </div>
+        <div class="form-item-filters">
+            <div *ngFor="let filter of coopConfiguration.filters" [formGroupName]="filter.type">
+                <mat-form-field appearance="legacy" *ngIf="showFilter(filter.type)">
+                    <mat-label>{{ getFilterInformation(filter.type, 'textAreaLabel') }}</mat-label>
+                    <textarea matInput rows="5"
+                    [placeholder]="getFilterInformation(filter.type, 'placeholder')"
+                    [formControlName]="getFilterInformation(filter.type, 'formControlName')"></textarea>
+                    <mat-hint
+                    *ngIf="!isInvalidInput('filters.' + filter.type + '.' + getFilterInformation(filter.type, 'formControlName'))">
+                        Please add one {{ getFilterInformation(filter.type, 'optionLabel') }} per row
+                    </mat-hint>
+                    <mat-hint
+                    *ngIf="isInvalidInput('filters.' + filter.type + '.' +  getFilterInformation(filter.type, 'formControlName'))">
+                        Please add valid data for the {{ getFilterInformation(filter.type, 'textAreaLabel') }}.
+                    </mat-hint>
+                </mat-form-field>
+            </div>
+        </div>
+    </div>
+    <div class="form-group" formGroupName="destinations">
+        <div class="form-item">
+            <div><label>Destinations</label></div>
+            <mat-form-field appearance="legacy">
+                <mat-label>Destinations</mat-label>
+                <mat-select formControlName="types" multiple>
+                    <mat-option *ngFor="let destinationType of destinationTypeOptions"
+                    (onSelectionChange)="onChangeDestinations($event)"
+                    [value]="destinationType.value">
+                        {{ destinationType.label }}
+                    </mat-option>
+                </mat-select>
+                <mat-hint *ngIf="isInvalidInput('destinations.types')">
+                    Please select at least one destination
+                </mat-hint>
+            </mat-form-field>
+        </div>
+        <div class="form-item-destinations">
+            <div *ngFor="let destination of coopConfiguration.destinations"
+            [formGroupName]="destination.type"
+            [ngSwitch]="destination.type">
+                <mat-form-field appearance="legacy" *ngSwitchCase="'google_ads'">
+                    <mat-label>Google Ads</mat-label>
+                    <input matInput formControlName="customer_id"
+                    placeholder="Ex. 123-456-7890">
+                    <mat-hint
+                    *ngIf="isInvalidInput('destinations.' + destination.type + '.customer_id')">
+                        Please add a valid Customer ID
+                    </mat-hint>
+                </mat-form-field>
+                <mat-form-field appearance="legacy" *ngSwitchCase="'dv360'">
+                    <mat-label>Campaign Manager Profile ID</mat-label>
+                    <input matInput formControlName="cm_profile_id"
+                    placeholder="Ex. 1234567">
+                    <mat-hint
+                    *ngIf="isInvalidInput('destinations.' + destination.type + '.cm_profile_id')">
+                        Please add a valid Campaign Manager Profile ID
+                    </mat-hint>
+                </mat-form-field>
+                <mat-form-field appearance="legacy" *ngSwitchCase="'dv360'">
+                    <mat-label>Floodlight Activity ID</mat-label>
+                    <input matInput formControlName="floodlight_activity_id"
+                    placeholder="Ex. 1234567">
+                    <mat-hint
+                    *ngIf="isInvalidInput('destinations.' + destination.type + '.floodlight_activity_id')">
+                        Please add a valid Floodlight Activity ID
+                    </mat-hint>
+                </mat-form-field>
+                <mat-form-field appearance="legacy" *ngSwitchCase="'dv360'">
+                    <mat-label>Floodlight Configuration ID</mat-label>
+                    <input matInput formControlName="floodlight_configuration_id"
+                    placeholder="Ex. 1234567">
+                    <mat-hint
+                    *ngIf="isInvalidInput('destinations.' + destination.type + '.floodlight_configuration_id')">
+                        Please add a valid Floodlight Configuration Activity ID
+                    </mat-hint>
+                </mat-form-field>
+            </div>
+        </div>
+    </div>
+    <div class="form-item">
+        Active
+        <mat-slide-toggle color="accent" formControlName="is_active">
+        </mat-slide-toggle>
+    </div>
+    <div class="form-buttons-container">
+        <button mat-raised-button color="primary" type="submit" [disabled]="!coopConfigurationForm.valid">Save</button>
+        <button mat-raised-button color="primary" routerLink="/co-op-configurations">Cancel</button>
+    </div>
+</form>

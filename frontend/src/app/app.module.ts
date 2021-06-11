@@ -31,6 +31,7 @@ import { SharedModule } from './modules/shared/shared.module';
 import { RetailersModule } from './modules/retailers/retailers.module';
 import { RetailersRoutingModule } from './modules/retailers/retailers-routing.module';
 import { CoopConfigurationsModule } from './modules/co-op-configurations/co-op-configurations.module';
+import { CoopConfigurationsRoutingModule } from './modules/co-op-configurations/co-op-configurations.routing.module'
 
 @NgModule({
   declarations: [
@@ -46,7 +47,8 @@ import { CoopConfigurationsModule } from './modules/co-op-configurations/co-op-c
     SharedModule,
     RetailersModule,
     RetailersRoutingModule,
-    CoopConfigurationsModule
+    CoopConfigurationsModule,
+    CoopConfigurationsRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]

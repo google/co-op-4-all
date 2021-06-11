@@ -1,0 +1,21 @@
+.co-op-configurations-table-container {
+    margin: 30px 0px 30px 0px;
+}
+
+.add-co-op-configuration-button-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+table {
+    width: 100%;
+}
+
+td button {
+    margin-left: 10px;
+}
+
+.mat-form-field {
+    font-size: 14px;
+    width: 30%;
+}

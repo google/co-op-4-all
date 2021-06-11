@@ -1,22 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent {
 
-  links = [{link:'Retailers', route:'retailers'},
-  {link:'Co-op Configurations', route: 'co-op-configurations'}/*,
-  {link: 'Retailers', route: 'retailers-list'},
-  {link: 'Co-op Configurations', route: 'co-op-configurations-list'},
-{link: 'Logs', route: 'logs-list' }*/];
-  activeLink = this.links[0].link
+  links: Array<any>
+  activeLink: string
 
-  constructor() { }
-
-  ngOnInit(): void {
+  constructor() {
+   this.links = [{
+      link:'Retailers',
+      route:'retailers',
+      icon: 'store'
+    },{
+      link:'Co-Op Configurations',
+      route: 'co-op-configurations',
+      icon: 'settings'
+    }];
+    this.activeLink = this.links[0].link;
   }
 
 }

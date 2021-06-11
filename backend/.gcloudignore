@@ -27,7 +27,7 @@ __pycache__/
 /bazel-out
 
 # dependencies
-/frontend/node_modules
+../frontend/node_modules
 
 # profiling files
 chrome-profiler-events*.json

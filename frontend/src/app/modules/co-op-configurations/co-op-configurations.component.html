@@ -1,0 +1,60 @@
+<div class="add-co-op-configuration-button-container">
+    <button mat-raised-button color="primary" routerLink="/co-op-configurations/new">
+        <mat-icon>add</mat-icon>
+        Add Co-Op Configuration
+    </button>
+</div>
+<mat-form-field>
+    <mat-label>Filter</mat-label>
+    <input matInput (keyup)="applyFilter($event)" placeholder="" #input>
+</mat-form-field>
+<div class="co-op-configurations-table-container mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource" matSort>
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+            <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+        </ng-container>
+        <!-- Created At Column -->
+        <ng-container matColumnDef="created_at">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Created At</th>
+            <td mat-cell *matCellDef="let element"> {{element.created_at}} </td>
+        </ng-container>
+        <!-- Retailer Name Column -->
+        <ng-container matColumnDef="retailer_name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Retailer Name</th>
+            <td mat-cell *matCellDef="let element"> {{element.retailer_name}} </td>
+        </ng-container>
+        <!-- Attribution Window Column -->
+        <ng-container matColumnDef="attribution_window">
+            <th mat-header-cell *matHeaderCellDef>Attribution Window</th>
+            <td mat-cell *matCellDef="let element"> {{element.attribution_window}} </td>
+        </ng-container>
+        <!-- Attribution Window Column -->
+        <ng-container matColumnDef="is_active">
+            <th mat-header-cell *matHeaderCellDef>Active</th>
+            <td mat-cell *matCellDef="let element">{{element.is_active}}</td>
+        </ng-container>
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let element">
+                <button mat-raised-button color="primary" [routerLink]="['/co-op-configurations', element.name, 'edit']">
+                    <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-raised-button color="accent" (click)="deleteCoopConfiguration(element.name)">
+                    <mat-icon>remove</mat-icon>
+                </button>
+            </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <!-- Row shown when there is no matching data -->
+        <div *ngIf="this.coopConfigurations.length > 0">
+            <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
+            </tr>
+        </div>
+    </table>
+    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+</div>

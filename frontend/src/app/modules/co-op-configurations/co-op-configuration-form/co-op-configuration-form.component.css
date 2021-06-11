@@ -1,0 +1,65 @@
+.form-container {
+    margin-top:30px;
+}
+
+.divider-section {
+    margin: 10px 0px 25px 0px;
+}
+
+.divider {
+    width: 60%;
+}
+
+.form-item {
+    display: flex;
+    justify-content: flex-start;
+    margin: 0px 0px 25px 0px;
+}
+
+.form-item div {
+    width: 150px;
+    margin-top: 15px;
+}
+
+.form-item mat-form-field {
+    width: 300px;
+}
+
+.form-item-filters mat-form-field {
+    margin: 0px 15px 0px 15px;
+    width: 300px;
+}
+
+.form-item-filters div {
+    display: inline;
+}
+
+.form-item-destinations mat-form-field {
+    margin: 15px 0px 0px 10px;
+    width: 300px;
+}
+
+.form-item-destinations .param {
+    display: inline;
+}
+
+.form-item mat-slide-toggle {
+    margin: 20px 0px 0px 10px;
+}
+
+.form-item-destination mat-form-field {
+    margin-left: 15px;
+}
+
+.form-buttons-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.form-buttons-container button {
+    margin: 20px 0px 0px 10px;
+}
+
+.form-group {
+    margin: 0px 0px 30px 0px;
+}

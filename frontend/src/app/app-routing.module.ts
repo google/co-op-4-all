@@ -1,8 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { RetailersComponent } from './modules/retailers/retailers.component';
-import { CoopConfigurationFormComponent } from './modules/co-op-configurations/co-op-configuration-form/co-op-configuration-form.component';
-
+import { CoopConfigurationsComponent } from './modules/co-op-configurations/co-op-configurations.component';
 
 const routes: Routes = [{
   path: 'retailers',
@@ -11,7 +10,7 @@ const routes: Routes = [{
 },
 {
   path: 'co-op-configurations',
-  component: CoopConfigurationFormComponent
+  component: CoopConfigurationsComponent
 },{
   path: '',
   redirectTo: '/retailers',
