@@ -19,7 +19,10 @@
 *
 ***************************************************************************/
 
-import { Component, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, ChangeDetectorRef} from '@angular/core';
+import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
 import { Retailer } from '../../models/retailer/retailer';
 import { RetailersService } from './services/retailers.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -31,21 +34,37 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class RetailersComponent implements OnInit {
 
+  displayedColumns: Array<string>;
   retailers: Retailer[]
+  dataSource: MatTableDataSource<Retailer>
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
 
   constructor(private retailersService: RetailersService,
     private _snackBar: MatSnackBar) {
     this.retailers = [];
+    this.paginator = new MatPaginator(new MatPaginatorIntl(), ChangeDetectorRef.prototype);
+    this.sort = new MatSort();
+    this.dataSource = new MatTableDataSource<Retailer>([]);
+    this.displayedColumns = this.buildColumns();
   }
 
   ngOnInit(): void {
     this.getRetailers();
   }
 
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
   getRetailers() {
-    this.retailersService.getRetailers()
-    .then(retailers => {
-      this.retailers = retailers as Retailer[];
+    this.retailersService.getRetailers().then(retailers => {
+      retailers.forEach((retailer: Retailer) => {
+        // Push each element, for some reason the table does not work if we assign it
+        this.retailers.push(retailer);
+        this.dataSource.data = this.retailers;
+      });
     }).catch(error => {
       console.log(`There was an error while fetching the retailers: ${error}`);
       this.openSnackBar(`There was an error while fetching the retailers: ${error}`);
@@ -61,6 +80,7 @@ export class RetailersComponent implements OnInit {
       this.retailersService.deleteRetailer(retailer.name).then((response) => {
         this.openSnackBar(`The retailer ${retailer.name} was deleted successfully.`);
         this.retailers.splice(index, 1);
+        this.dataSource.data = this.retailers;
       })
       .catch(error => {
         console.log(`There was an error while deleting the retailer ${retailer.name}: ${error}`);
@@ -70,6 +90,15 @@ export class RetailersComponent implements OnInit {
       console.log(`The retailer was not found.`);
       this.openSnackBar(`The retailer was not found.`);
     }
+  }
+
+  buildColumns() {
+    return ['name', 'created_at', 'bq_ga_table', 'time_zone', 'max_backfill', 'is_active', 'actions']
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
   openSnackBar(message: string) {

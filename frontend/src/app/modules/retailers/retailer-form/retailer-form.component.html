@@ -1,7 +1,8 @@
 <h1>{{ title }}</h1>
 <mat-divider></mat-divider>
-<form [formGroup]="retailerForm" (ngSubmit)="save()">
-    <div class="retailer-form-item">
+<mat-divider></mat-divider>
+<form class="form-container" [formGroup]="retailerForm" (ngSubmit)="save()">
+    <div class="form-item">
         <div><label>Retailer Name</label></div>
         <mat-form-field appearance="legacy">
             <mat-label>Retailer Name</mat-label>
@@ -15,7 +16,7 @@
             </mat-hint>
         </mat-form-field>
     </div>
-    <div class="retailer-form-item">
+    <div class="form-item">
         <div><label>BQ GA Table</label></div>
         <mat-form-field appearance="legacy">
             <mat-label>BQ GA Table</mat-label>
@@ -26,7 +27,7 @@
             </mat-hint>
         </mat-form-field>
     </div>
-    <div class="retailer-form-item">
+    <div class="form-item">
         <div><label>Timezone</label></div>
         <mat-form-field appearance="legacy">
             <mat-label>Timezone</mat-label>
@@ -38,7 +39,7 @@
             </mat-hint>
         </mat-form-field>
     </div>
-    <div class="retailer-form-item">
+    <div class="form-item">
         <div><label>Max Backfill</label></div>
         <mat-form-field appearance="legacy">
             <mat-label>Max Backfill</mat-label>
@@ -49,12 +50,12 @@
             </mat-hint>
         </mat-form-field>
     </div>
-    <div class="retailer-form-item">
+    <div class="form-item">
+        Active
         <mat-slide-toggle color="accent" formControlName="is_active">
-            Active
         </mat-slide-toggle>
     </div>
-    <div class="retailer-form-buttons-container">
+    <div class="form-buttons-container">
         <button mat-raised-button color="primary" type="submit" [disabled]="!retailerForm.valid">Save</button>
         <button mat-raised-button color="primary" routerLink="/retailers">Cancel</button>
     </div>

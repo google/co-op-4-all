@@ -1,16 +1,22 @@
-.add-retailer-button-container {
+.add-button-container {
     display: flex;
     justify-content: flex-end;
+    margin: 15px 0px 0px 0px;
 }
 
-.no-retailers {
-    margin-top: 50px;
+.table-container {
+    margin: 30px 0px 30px 0px;
 }
 
-.no-retailers span {
-    padding: 45%;
+table {
+    width: 100%;
 }
 
-.no-retailers div {
-    padding: 1%;
+td button {
+    margin-left: 10px;
+}
+
+.filter {
+    font-size: 14px;
+    width: 30%;
 }

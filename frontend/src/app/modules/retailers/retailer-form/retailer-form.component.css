@@ -1,35 +1,35 @@
-.retailer-form-container {
+.form-container {
     margin-top:30px;
 }
 
-.retailer-form-item {
+.form-item {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
 }
 
-.retailer-form-item div {
+.form-item div {
     width: 100px;
     margin-top: 28px;
 }
 
-.retailer-form-item .no-mat-form-field {
+.form-item .no-mat-form-field {
     margin: 28px 0px 0px 10px;
 }
 
-.retailer-form-item mat-form-field {
+.form-item mat-form-field {
     margin: 20px 0px 0px 10px;
     width: 300px;
 }
 
-.retailer-form-item mat-slide-toggle {
+.form-item mat-slide-toggle {
     margin: 20px 0px 0px 10px;
 }
 
-.retailer-form-buttons-container {
+.form-buttons-container {
     display: flex;
     justify-content: flex-end;
 }
 
-.retailer-form-buttons-container button {
+.form-buttons-container button {
     margin: 20px 0px 0px 10px;
 }
