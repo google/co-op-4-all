@@ -20,12 +20,12 @@
 ***************************************************************************/
 
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CoopConfiguration } from '../../../models/co-op-configuration/co-op-configuration';
 import { CoopConfigurationsService } from '../services/co-op-configurations.service';
 import { RetailersService } from '../../retailers/services/retailers.service';
-import { Retailer } from '../../../models/retailer';
+import { Retailer } from '../../../models/retailer/retailer';
 import { Filter } from '../../../models/co-op-configuration/filter';
 import { GoogleAdsDestination } from '../../../models/co-op-configuration/google-ads-destination';
 import { DV360Destination } from '../../../models/co-op-configuration/dv360-destination';

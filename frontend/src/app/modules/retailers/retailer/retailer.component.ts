@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Retailer } from 'src/app/models/retailer';
+import { Retailer } from 'src/app/models/retailer/retailer';
 import { Output, EventEmitter } from '@angular/core';
 
 @Component({
@@ -13,7 +13,7 @@ export class RetailerComponent implements OnInit {
   @Output() newItemEvent: EventEmitter<string>
 
   constructor() {
-    this.retailer = new Retailer();
+    this.retailer = {} as Retailer;
     this.newItemEvent = new EventEmitter<string>();
    }
 

@@ -22,9 +22,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Retailer } from 'src/app/models/retailer';
+import { Retailer } from '../../../models/retailer/retailer';
 import { RetailersService } from '../services/retailers.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+
 @Component({
   selector: 'app-retailer-form',
   templateUrl: './retailer-form.component.html',
@@ -43,35 +44,52 @@ export class RetailerFormComponent implements OnInit {
     private _snackBar: MatSnackBar) {
     this.isNew = this.router.url.endsWith('new');
     this.title = this.isNew ? 'New Retailer' : 'Edit Retailer';
-    this.retailerForm = new FormGroup({
-      'name': new FormControl('', [Validators.required, Validators.pattern('^[A-Za-z0-9\_]{3,50}$')]),
-      'bq_ga_table': new FormControl('', [Validators.required, Validators.pattern('^[A-Za-z0-9\-\.]{10,50}events_$')]),
-      'time_zone': new FormControl('', [Validators.required, Validators.pattern('^[A-Za-z\_\/]{3,25}$')]),
-      'max_backfill': new FormControl('3', [Validators.required, Validators.min(1), Validators.max(3), Validators.pattern('[0-9]')]),
-      'is_active': new FormControl('on'),
-    });
-    this.retailer = new Retailer();
+    this.retailerForm = this.buildRetailerFormGroup();
+    this.retailer = {} as Retailer;
   }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       let name = params.name;
-      if (!this.isNew && name) {
-        // Edit mode
-        this.retailersService.getRetailer(name).then(retailer => {
-          this.retailer = retailer as Retailer;
-          this.setFormGroup(this.retailer);
-        })
-        .catch(response => {
-          if (response.status === 404) {
-            console.log(`The retailer ${name} was not found.`);
-            this.openSnackBar(`The retailer ${name} was not found.`);
-          } else {
-            console.log(`There was an error while loading the retailer ${name}.`);
-            this.openSnackBar(`There was an error while loading the retailer ${name}.`);
-          }
-        });
+      if (this.isNew) {
+        // Builds an empty default retailer
+        this.buildNewRetailer();
+        this.setFormGroupValues(this.retailer);
+      } else {
+        // Retrieves an existing retailer
+        this.getExistingRetailer(name);
       }
+    });
+  }
+
+  buildNewRetailer() {
+    this.retailer = {
+      'name': '',
+      'bq_ga_table': '',
+      'time_zone': '',
+      'max_backfill': 90,
+      'is_active': true,
+    }
+  }
+
+  buildRetailerFormGroup() {
+    return new FormGroup({
+      'name': new FormControl('', [Validators.required, Validators.pattern('^[A-Za-z0-9\_]{3,50}$')]),
+      'bq_ga_table': new FormControl('', [Validators.required, Validators.pattern('^[A-Za-z0-9\-\.]{10,50}events_$')]),
+      'time_zone': new FormControl('', [Validators.required, Validators.pattern('^[A-Za-z\_\/]{3,25}$')]),
+      'max_backfill': new FormControl('90', [Validators.required, Validators.min(30), Validators.max(180)]),
+      'is_active': new FormControl('on'),
+    });
+  }
+
+  getExistingRetailer(name: string) {
+    this.retailersService.getRetailer(name).then(retailer => {
+      this.retailer = retailer as Retailer;
+      this.setFormGroupValues(this.retailer);
+    })
+    .catch(error => {
+      console.log(`There was an error while fetching the retailer ${name}: ${error}`);
+      this.openSnackBar(`There was an error while fetching the retailer ${name}: ${error}`);
     });
   }
 
@@ -91,8 +109,8 @@ export class RetailerFormComponent implements OnInit {
     this.retailer.time_zone = this.retailerForm.get('time_zone')?.value;
     this.retailer.max_backfill = this.retailerForm.get('max_backfill')?.value;
     this.retailer.is_active = this.retailerForm.get('is_active')?.value;
-    if(this.retailer['modified_at'] || this.retailer['modified_at'] === ''){
-      delete this.retailer['modified_at'];
+    if(this.retailer['bq_updated_at'] || this.retailer['bq_updated_at'] === ''){
+      delete this.retailer['bq_updated_at'];
     }
   }
 
@@ -101,14 +119,9 @@ export class RetailerFormComponent implements OnInit {
       this.openSnackBar(this.buildMessage('created'));
       this.moveToRetailers();
     })
-    .catch(response => {
-      if (response.status === 404) {
-        console.log(`Retailer ${this.retailer.name} could not be created.`);
-        this.openSnackBar(`Retailer ${this.retailer.name} could not be created.`);
-      } else {
-        console.log(`There was a problem creating the retailer ${this.retailer.name}.`);
-        this.openSnackBar(`There was a problem creating the retailer ${this.retailer.name}.`);
-      }
+    .catch(error => {
+        console.log(`There was an error while adding the retailer ${this.retailer.name}: ${error}`);
+        this.openSnackBar(`There was an error while adding the retailer ${this.retailer.name}: ${error}`);
     });
   }
 
@@ -117,34 +130,26 @@ export class RetailerFormComponent implements OnInit {
       this.openSnackBar(this.buildMessage('updated'));
       this.moveToRetailers();
     })
-    .catch(response => {
-      if (response.status === 404) {
-        console.log(`Retailer ${this.retailer.name} could not be updated.`)
-        this.openSnackBar(`Retailer ${this.retailer.name} could not be updated.`);
-      } else {
-        console.log(`There was a problem updating the retailer ${this.retailer.name}.`);
-        this.openSnackBar(`There was a problem updating the retailer ${this.retailer.name}.`);
-      }
+    .catch(error => {
+      console.log(`There was an error while updating the retailer ${this.retailer.name}: ${error}`);
+      this.openSnackBar(`There was an error while updating the retailer ${this.retailer.name}: ${error}`);
     });
   }
 
-  getNewRetailer() {
-    return {
-      'name': '',
-      'bq_ga_table': '',
-      'time_zone': '',
-      'max_backfill': '3',
-      'is_active': 'on',
-    }
-  }
-
-  setFormGroup(retailer: Retailer) {
+  setFormGroupValues(retailer: Retailer) {
     this.retailerForm.patchValue({ "name": retailer.name });
-    this.retailerForm.controls['name'].disable();
+    if(!this.isNew) {
+      this.retailerForm.controls['name'].disable();
+    }
     this.retailerForm.patchValue({ "bq_ga_table": retailer.bq_ga_table });
     this.retailerForm.patchValue({ "time_zone": retailer.time_zone });
     this.retailerForm.patchValue({ "max_backfill": retailer.max_backfill });
     this.retailerForm.patchValue({ "is_active": retailer.is_active });
+  }
+
+  isInvalidInput(property: string) {
+    return !this.retailerForm.get(property)?.valid
+      && this.retailerForm.get(property)?.touched
   }
 
   buildMessage(action: string) {

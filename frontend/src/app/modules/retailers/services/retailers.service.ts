@@ -21,7 +21,7 @@
 
 import { Injectable } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
-import { Retailer } from '../../../models/retailer';
+import { Retailer } from '../../../models/retailer/retailer';
 
 @Injectable()
 export class RetailersService extends ApiService {

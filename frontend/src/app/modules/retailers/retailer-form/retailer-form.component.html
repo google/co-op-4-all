@@ -7,11 +7,11 @@
             <mat-label>Retailer Name</mat-label>
             <input matInput formControlName="name">
             <mat-icon matSuffix>store</mat-icon>
-            <mat-hint *ngIf="isNew && retailerForm.get('name')?.value === '' && !retailerForm.get('name')?.touched">
+            <mat-hint *ngIf="isNew && !isInvalidInput('name')">
                 This name will be used to create the Big Query Dataset
             </mat-hint>
-            <mat-hint *ngIf="!retailerForm.get('name')?.valid && retailerForm.get('name')?.touched">
-                Please enter a valid retailer name
+            <mat-hint *ngIf="isInvalidInput('name')">
+                Please enter a valid Retailer Name
             </mat-hint>
         </mat-form-field>
     </div>
@@ -21,7 +21,7 @@
             <mat-label>BQ GA Table</mat-label>
             <input matInput formControlName="bq_ga_table">
             <mat-icon matSuffix>table_chart</mat-icon>
-            <mat-hint *ngIf="!retailerForm.get('bq_ga_table')?.valid && retailerForm.get('bq_ga_table')?.touched">
+            <mat-hint *ngIf="isInvalidInput('bq_ga_table')">
                 Please enter a valid BigQuery Google Analytics table
             </mat-hint>
         </mat-form-field>
@@ -32,9 +32,9 @@
             <mat-label>Timezone</mat-label>
             <input matInput formControlName="time_zone">
             <mat-icon matSuffix>schedule</mat-icon>
-            <mat-hint *ngIf="!retailerForm.get('time_zone')?.valid && retailerForm.get('time_zone')?.touched">
+            <mat-hint *ngIf="isInvalidInput('time_zone')">
                 Please enter a valid <a target="_blank"
-                    href="https://developers.google.com/adwords/api/docs/appendix/codes-formats#expandable-22">timezone</a>
+                    href="https://developers.google.com/adwords/api/docs/appendix/codes-formats#expandable-22">Timezone</a>
             </mat-hint>
         </mat-form-field>
     </div>
@@ -44,8 +44,8 @@
             <mat-label>Max Backfill</mat-label>
             <input matInput formControlName="max_backfill">
             <mat-icon matSuffix>arrow_upward</mat-icon>
-            <mat-hint *ngIf="!retailerForm.get('max_backfill')?.valid && retailerForm.get('max_backfill')?.touched">
-                Please enter a valid max backfill value (1-3 days)
+            <mat-hint *ngIf="isInvalidInput('max_backfill')">
+                Please enter a valid Max Backfill value (30-180 days)
             </mat-hint>
         </mat-form-field>
     </div>
@@ -55,7 +55,7 @@
         </mat-slide-toggle>
     </div>
     <div class="retailer-form-buttons-container">
-        <button mat-raised-button color="primary" routerLink="/retailers">Cancel</button>
         <button mat-raised-button color="primary" type="submit" [disabled]="!retailerForm.valid">Save</button>
+        <button mat-raised-button color="primary" routerLink="/retailers">Cancel</button>
     </div>
 </form>

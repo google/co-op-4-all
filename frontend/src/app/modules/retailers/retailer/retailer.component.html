@@ -2,7 +2,7 @@
     <mat-card-header>
         <div mat-card-avatar class="card-header-image"></div>
         <mat-card-title>{{ retailer.name }}</mat-card-title>
-        <mat-card-subtitle>Created at {{ retailer.created_at }}</mat-card-subtitle>
+        <mat-card-subtitle>Created at {{ retailer.created_at | date }}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
         <div class="card-content-container">

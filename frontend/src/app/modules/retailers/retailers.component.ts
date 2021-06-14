@@ -20,7 +20,7 @@
 ***************************************************************************/
 
 import { Component, OnInit } from '@angular/core';
-import { Retailer } from '../../models/retailer';
+import { Retailer } from '../../models/retailer/retailer';
 import { RetailersService } from './services/retailers.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -46,14 +46,9 @@ export class RetailersComponent implements OnInit {
     this.retailersService.getRetailers()
     .then(retailers => {
       this.retailers = retailers as Retailer[];
-    }).catch(response => {
-      if (response.status === 404) {
-        console.log(`The retailers were not found.`);
-        this.openSnackBar(`The retailers were not found`);
-      } else {
-        console.log(`There was an error while loading the retailers.`);
-        this.openSnackBar(`There was an error while loading the retailers.`);
-      }
+    }).catch(error => {
+      console.log(`There was an error while fetching the retailers: ${error}`);
+      this.openSnackBar(`There was an error while fetching the retailers: ${error}`);
     });
   }
 
@@ -67,14 +62,9 @@ export class RetailersComponent implements OnInit {
         this.openSnackBar(`The retailer ${retailer.name} was deleted successfully.`);
         this.retailers.splice(index, 1);
       })
-      .catch(response => {
-        if (response.status === 404) {
-          console.log(`Retailer ${retailer.name} could not be deleted.`)
-          this.openSnackBar(`Retailer ${retailer.name} could not be deleted.`);
-        } else {
-          console.log(`There was a problem deleting the retailer ${retailer.name}.`);
-          this.openSnackBar(`There was a problem deleting the retailer ${retailer.name}.`);
-        }
+      .catch(error => {
+        console.log(`There was an error while deleting the retailer ${retailer.name}: ${error}`);
+        this.openSnackBar(`There was an error while deleting the retailer ${retailer.name}: ${error}`);
       });
     } else {
       console.log(`The retailer was not found.`);
