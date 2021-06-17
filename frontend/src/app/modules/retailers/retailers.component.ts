@@ -39,6 +39,7 @@ export class RetailersComponent implements OnInit {
   dataSource: MatTableDataSource<Retailer>
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  showSpinner = false
 
   constructor(private retailersService: RetailersService,
     private _snackBar: MatSnackBar) {
@@ -59,19 +60,20 @@ export class RetailersComponent implements OnInit {
   }
 
   getRetailers() {
+    this.showSpinner = true;
     this.retailersService.getRetailers().then(retailers => {
-      retailers.forEach((retailer: Retailer) => {
-        // Push each element, for some reason the table does not work if we assign it
-        this.retailers.push(retailer);
-        this.dataSource.data = this.retailers;
-      });
+      this.retailers = retailers as Array<Retailer>;
+      this.dataSource.data = this.retailers;
+      this.showSpinner = false;
     }).catch(error => {
       console.log(`There was an error while fetching the retailers: ${error}`);
       this.openSnackBar(`There was an error while fetching the retailers: ${error}`);
+      this.showSpinner = false;
     });
   }
 
   deleteRetailer(name: string) {
+    this.showSpinner = true;
     let index = this.retailers.findIndex(retailer => {
       return retailer.name === name
     });
@@ -81,14 +83,17 @@ export class RetailersComponent implements OnInit {
         this.openSnackBar(`The retailer ${retailer.name} was deleted successfully.`);
         this.retailers.splice(index, 1);
         this.dataSource.data = this.retailers;
+        this.showSpinner = false;
       })
       .catch(error => {
         console.log(`There was an error while deleting the retailer ${retailer.name}: ${error}`);
         this.openSnackBar(`There was an error while deleting the retailer ${retailer.name}: ${error}`);
+        this.showSpinner = false;
       });
     } else {
       console.log(`The retailer was not found.`);
       this.openSnackBar(`The retailer was not found.`);
+      this.showSpinner = false;
     }
   }
 

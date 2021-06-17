@@ -59,4 +59,5 @@
         <button mat-raised-button color="primary" type="submit" [disabled]="!retailerForm.valid">Save</button>
         <button mat-raised-button color="primary" routerLink="/retailers">Cancel</button>
     </div>
+    <mat-spinner class="spinner" *ngIf="showSpinner" style="position:fixed"></mat-spinner>
 </form>

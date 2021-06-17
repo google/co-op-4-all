@@ -30,6 +30,13 @@ body {
     margin-top: 20px;
 }
 
+.spinner {
+    margin: 0 auto;
+    position: fixed;
+    left: 46%;
+    top: 40%;
+}
+
 app-retailers {
     width: 90%;
 }

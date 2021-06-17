@@ -46,6 +46,7 @@ export class CoopConfigurationFormComponent implements OnInit {
   isNew: boolean
   filterTypeOptions: Array<any>
   destinationTypeOptions: Array<any>
+  showSpinner = false
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -62,6 +63,7 @@ export class CoopConfigurationFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.showSpinner = true;
     this.getRetailers();
     this.route.params.subscribe(params => {
       let name = params.name;
@@ -69,6 +71,7 @@ export class CoopConfigurationFormComponent implements OnInit {
         // Builds an empty default config
         this.buildNewCoopConfiguration();
         this.setFormGroupValues(this.coopConfiguration);
+        this.showSpinner = false;
       } else {
         // Retrieves an existing config
         this.getExistingCoopConfiguration(name);
@@ -178,9 +181,11 @@ export class CoopConfigurationFormComponent implements OnInit {
     this.coopConfigurationsService.getCoopConfiguration(name).then(coopConfiguration => {
       this.coopConfiguration = coopConfiguration as CoopConfiguration;
       this.setFormGroupValues(this.coopConfiguration);
+      this.showSpinner = false;
     }).catch(error => {
       console.log(`The was an error getting the Co-Op Configuration ${name}: ${error}`);
       this.openSnackBar(`The was an error getting the Co-Op Configuration ${name}: ${error}`);
+      this.showSpinner = false;
     });
   }
 
@@ -249,6 +254,7 @@ export class CoopConfigurationFormComponent implements OnInit {
   }
 
   save() {
+    this.showSpinner = true;
     this.buildCoopConfiguration();
     if (this.isNew) {
       this.addCoopConfiguration();
@@ -315,30 +321,34 @@ export class CoopConfigurationFormComponent implements OnInit {
     this.coopConfigurationsService.addCoopConfiguration(this.coopConfiguration).then((response) => {
       this.openSnackBar(this.buildMessage('created'));
       this.moveToCoopConfigurations();
-    })
-      .catch(error => {
-        console.log(`There was an error while creating the Co-Op Configuration: ${error}`);
-        this.openSnackBar(`There was an error while creating the Co-Op Configuration: ${error}`);
-      });
+      this.showSpinner = false;
+    }).catch(error => {
+      console.log(`There was an error while creating the Co-Op Configuration: ${error}`);
+      this.openSnackBar(`There was an error while creating the Co-Op Configuration: ${error}`);
+      this.showSpinner = false;
+    });
   }
 
   updateCoopConfiguration() {
     this.coopConfigurationsService.updateCoopConfiguration(this.coopConfiguration).then((response) => {
       this.openSnackBar(this.buildMessage('updated'));
       this.moveToCoopConfigurations();
-    })
-      .catch(error => {
-        console.log(`There was an error while updating the Co-Op Configuration: ${error}`);
-        this.openSnackBar(`There was an error while updating the Co-Op Configuration: ${error}`);
-      });
+      this.showSpinner = false;
+    }).catch(error => {
+      console.log(`There was an error while updating the Co-Op Configuration: ${error}`);
+      this.openSnackBar(`There was an error while updating the Co-Op Configuration: ${error}`);
+      this.showSpinner = false;
+    });
   }
 
   getRetailers() {
     this.retailersService.getRetailers().then(retailers => {
       this.retailers = retailers as Array<Retailer>;
+      this.showSpinner = false;
     }).catch(error => {
       console.log(`There was an error while fetching the retailers: ${error}`);
       this.openSnackBar(`There was an error while fetching the retailers: ${error}`);
+      this.showSpinner = false;
     });
   }
 

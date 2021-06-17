@@ -19,6 +19,7 @@ export class CoopConfigurationsComponent implements OnInit {
   dataSource: MatTableDataSource<CoopConfiguration>
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  showSpinner = false
 
   constructor(private coopConfigurationsService: CoopConfigurationsService,
     private _snackBar: MatSnackBar) {
@@ -39,19 +40,20 @@ export class CoopConfigurationsComponent implements OnInit {
   }
 
   getCoopConfigurations() {
+    this.showSpinner = true;
     this.coopConfigurationsService.getCoopConfigurations().then(coopConfigurations => {
-      coopConfigurations.forEach((coopConfig:CoopConfiguration) => {
-        // push each element, for some reason the table does not work if we assign it
-        this.coopConfigurations.push(coopConfig);
-        this.dataSource.data = this.coopConfigurations;
-      });
+      this.coopConfigurations = coopConfigurations as Array<CoopConfiguration>;
+      this.dataSource.data = this.coopConfigurations;
+      this.showSpinner = false;
     }).catch(error => {
         console.log(`There was an error while fetching the Co-Op configurations: ${error}`);
         this.openSnackBar(`There was an error while fetching the Co-Op configurations: ${error}`);
+        this.showSpinner = false;
     });
   }
 
   deleteCoopConfiguration(name: string) {
+    this.showSpinner = true;
     let index = this.coopConfigurations.findIndex(coopConfiguration => {
       return coopConfiguration.name === name
     });
@@ -61,14 +63,17 @@ export class CoopConfigurationsComponent implements OnInit {
         this.openSnackBar(`The Co-Op Configuration ${coopConfiguration.name} was deleted successfully.`);
         this.coopConfigurations.splice(index, 1);
         this.dataSource.data = this.coopConfigurations;
+        this.showSpinner = false;
       })
       .catch(error => {
         console.log(`There was an error while deleting the Co-Op Configuration ${coopConfiguration.name}: ${error}.`)
         this.openSnackBar(`There was an error while deleting the Co-Op Configuration ${coopConfiguration.name}: ${error}.`);
+        this.showSpinner = false;
       });
     } else {
       console.log(`The Co-Op Configuration was not found.`);
       this.openSnackBar(`The Co-Op Configuration was not found.`);
+      this.showSpinner = false;
     }
   }
 

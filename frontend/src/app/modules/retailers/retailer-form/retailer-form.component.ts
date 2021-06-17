@@ -37,6 +37,7 @@ export class RetailerFormComponent implements OnInit {
   retailerForm: FormGroup
   retailer: Retailer
   isNew: boolean
+  showSpinner = false;
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -49,12 +50,14 @@ export class RetailerFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.showSpinner = true;
     this.route.params.subscribe(params => {
       let name = params.name;
       if (this.isNew) {
         // Builds an empty default retailer
         this.buildNewRetailer();
         this.setFormGroupValues(this.retailer);
+        this.showSpinner = false;
       } else {
         // Retrieves an existing retailer
         this.getExistingRetailer(name);
@@ -86,14 +89,17 @@ export class RetailerFormComponent implements OnInit {
     this.retailersService.getRetailer(name).then(retailer => {
       this.retailer = retailer as Retailer;
       this.setFormGroupValues(this.retailer);
+      this.showSpinner = false;
     })
     .catch(error => {
       console.log(`There was an error while fetching the retailer ${name}: ${error}`);
       this.openSnackBar(`There was an error while fetching the retailer ${name}: ${error}`);
+      this.showSpinner = false;
     });
   }
 
   save() {
+    this.showSpinner = true;
     this.buildRetailer();
     if(this.isNew) {
       this.addRetailer();
@@ -118,10 +124,12 @@ export class RetailerFormComponent implements OnInit {
     this.retailersService.addRetailer(this.retailer).then((newRetailer) => {
       this.openSnackBar(this.buildMessage('created'));
       this.moveToRetailers();
+      this.showSpinner = false;
     })
     .catch(error => {
         console.log(`There was an error while adding the retailer ${this.retailer.name}: ${error}`);
         this.openSnackBar(`There was an error while adding the retailer ${this.retailer.name}: ${error}`);
+        this.showSpinner = false;
     });
   }
 
@@ -129,10 +137,12 @@ export class RetailerFormComponent implements OnInit {
     this.retailersService.updateRetailer(this.retailer).then((updatedRetailer) => {
       this.openSnackBar(this.buildMessage('updated'));
       this.moveToRetailers();
+      this.showSpinner = false;
     })
     .catch(error => {
       console.log(`There was an error while updating the retailer ${this.retailer.name}: ${error}`);
       this.openSnackBar(`There was an error while updating the retailer ${this.retailer.name}: ${error}`);
+      this.showSpinner = false;
     });
   }
 

@@ -162,4 +162,5 @@
         <button mat-raised-button color="primary" type="submit" [disabled]="!coopConfigurationForm.valid">Save</button>
         <button mat-raised-button color="primary" routerLink="/co-op-configurations">Cancel</button>
     </div>
+    <mat-spinner class="spinner" *ngIf="showSpinner" style="position:fixed"></mat-spinner>
 </form>

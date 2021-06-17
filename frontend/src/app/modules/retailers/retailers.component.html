@@ -65,4 +65,5 @@
         </div>
     </table>
     <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+    <mat-spinner class="spinner" *ngIf="showSpinner" style="position:fixed"></mat-spinner>
 </div>
