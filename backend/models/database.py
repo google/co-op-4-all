@@ -36,6 +36,14 @@ class DbModel(BaseModel):
         key = db_client.key(cls.__name__, name)
         db_client.delete(key)
 
+    @classmethod
+    def delete_multi(cls, name, field):
+        query = db_client.query(kind=cls.__name__)
+        query.keys_only()
+        query.add_filter(field, '=', name)
+        keys = list([entity.key for entity in query.fetch()])
+        db_client.delete_multi(keys)
+
     def add(self):
         with db_client.transaction() as t:
             key = db_client.key(self.__class__.__name__, self.name)

@@ -30,7 +30,7 @@ class RetailerConfig(DbModel):
     name: constr(regex="^[A-Za-z0-9\_]{3,50}$")
     bq_ga_table: constr(regex="^[A-Za-z0-9\-\.]{10,50}events_$")
     time_zone: constr(regex="^[A-Za-z\_\/]{3,25}$")
-    max_backfill: conint(gt=30, le=180) = 90
+    max_backfill: conint(ge=30, le=180) = 90
     is_active: bool = True
     created_at: datetime = None
     modified_at: datetime = None
@@ -51,7 +51,7 @@ class CoopCampaignConfig(DbModel):
     utm_campaigns: conlist(str, min_items=1)
     filters: List[Filter]
     destinations: Optional[List[Union[GoogleAdsDestination, Dv360Destination]]]
-    attribution_window: conint(gt=1, le=30) = 7
+    attribution_window: conint(ge=1, le=30) = 7
     is_active: bool = True
     created_at: datetime = None
     modified_at: datetime = None

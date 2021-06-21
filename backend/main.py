@@ -36,7 +36,7 @@ def add_campaign():
     try:
         config = CoopCampaignConfig(**data)
     except ValidationError as e:
-        return jsonify(e.json())
+        return jsonify(e.json()), 422
     new_config = config.add()
     if not new_config:
         abort(409)
@@ -57,7 +57,7 @@ def update_campaign(name):
     try:
         config = CoopCampaignConfig(**data)
     except ValidationError as e:
-        return jsonify(e.json())
+        return jsonify(e.json()), 422
     update = config.update(name)
     if not update:
         abort(404)
@@ -85,7 +85,7 @@ def add_retailer():
     try:
         config = RetailerConfig(**data)
     except ValidationError as e:
-        return jsonify(e.json())
+        return jsonify(e.json()), 422
     new_config = config.add()
     if not new_config:
         abort(409)
@@ -106,7 +106,7 @@ def update_retailer(name):
     try:
         config = RetailerConfig(**data)
     except ValidationError as e:
-        return jsonify(e.json())
+        return jsonify(e.json()), 422
     update = config.update(name)
     if not update:
         abort(404)
@@ -119,6 +119,7 @@ def delete_retailer(name):
     if not config:
         abort(404)
     RetailerConfig.delete(name)
+    CoopCampaignConfig.delete_multi(name, field='retailer_name')
     return "", 204
 
 
