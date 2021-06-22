@@ -14,11 +14,9 @@
 
 from datetime import datetime, timezone
 from typing import List, Optional, Union
-
 from pydantic import BaseModel, conint, conlist, constr, validator
-
-from models.database import DbModel
-from models.destinations import Dv360Destination, GoogleAdsDestination
+from core.models.database import DbModel
+from core.models.destinations import Dv360Destination, GoogleAdsDestination
 
 
 class Filter(BaseModel):

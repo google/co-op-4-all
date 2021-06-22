@@ -26,7 +26,7 @@ import { CoopConfiguration } from '../../../models/co-op-configuration/co-op-con
 @Injectable()
 export class CoopConfigurationsService extends ApiService {
 
-    private url = `${this.getHost()}/campaigns`;
+    private url = `${this.getHost()}/co_op_configurations`;
 
     getCoopConfigurations() {
         this.removeContentTypeHeader();

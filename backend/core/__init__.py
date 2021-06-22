@@ -12,8 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-from core import app
+from flask import Flask
+from utils import CustomJSONEncoder
 
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+app = Flask(__name__)
+app.json_encoder = CustomJSONEncoder
+
+# Import Blueprints
+from .retailers import retailers
+from .coop_configurations import coop_configurations
+app.register_blueprint(retailers)
+app.register_blueprint(coop_configurations)
