@@ -98,7 +98,7 @@ export class RetailersComponent implements OnInit {
   }
 
   buildColumns() {
-    return ['name', 'created_at', 'bq_ga_table', 'time_zone', 'max_backfill', 'is_active', 'actions']
+    return ['name', 'created_at', 'bq_ga_table', 'time_zone', 'coop_max_backfill', 'is_active', 'actions']
   }
 
   applyFilter(event: Event) {

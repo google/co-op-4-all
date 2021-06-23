@@ -17,13 +17,13 @@ from . import coop_configurations
 from pydantic import ValidationError
 from core.models.configurations import CoopCampaignConfig
 
-@coop_configurations.route("/api/co_op_configurations", methods=["GET"])
-def list_co_op_configurations():
+@coop_configurations.route("/api/co_op_campaigns", methods=["GET"])
+def list_co_op_campaigns():
     configs = CoopCampaignConfig.get_all()
     return jsonify(configs)
 
-@coop_configurations.route("/api/co_op_configurations", methods=["POST"])
-def add_co_op_configuration():
+@coop_configurations.route("/api/co_op_campaigns", methods=["POST"])
+def add_co_op_campaign():
     data = dict(request.json)
     try:
         config = CoopCampaignConfig(**data)
@@ -34,15 +34,15 @@ def add_co_op_configuration():
         abort(409)
     return "", 201
 
-@coop_configurations.route("/api/co_op_configurations/<string:name>", methods=["GET"])
-def get_co_op_configuration(name):
+@coop_configurations.route("/api/co_op_campaigns/<string:name>", methods=["GET"])
+def get_co_op_campaign(name):
     config = CoopCampaignConfig.get(name)
     if not config:
         abort(404)
     return jsonify(config)
 
-@coop_configurations.route("/api/co_op_configurations/<string:name>", methods=["PUT"])
-def update_co_op_configuration(name):
+@coop_configurations.route("/api/co_op_campaigns/<string:name>", methods=["PUT"])
+def update_co_op_campaign(name):
     data = dict(request.json)
     try:
         config = CoopCampaignConfig(**data)
@@ -53,8 +53,8 @@ def update_co_op_configuration(name):
         abort(404)
     return "", 200
 
-@coop_configurations.route("/api/co_op_configurations/<string:name>", methods=["DELETE"])
-def delete_co_op_configuration(name):
+@coop_configurations.route("/api/co_op_campaigns/<string:name>", methods=["DELETE"])
+def delete_co_op_campaign(name):
     config = CoopCampaignConfig.get(name)
     if not config:
         abort(404)

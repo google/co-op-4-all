@@ -70,7 +70,7 @@ export class RetailerFormComponent implements OnInit {
       'name': '',
       'bq_ga_table': '',
       'time_zone': '',
-      'max_backfill': 90,
+      'coop_max_backfill': 90,
       'is_active': true,
     }
   }
@@ -80,7 +80,7 @@ export class RetailerFormComponent implements OnInit {
       'name': new FormControl('', [Validators.required, Validators.pattern('^[A-Za-z0-9\_]{3,50}$')]),
       'bq_ga_table': new FormControl('', [Validators.required, Validators.pattern('^[A-Za-z0-9\-\.]{10,50}events_$')]),
       'time_zone': new FormControl('', [Validators.required, Validators.pattern('^[A-Za-z\_\/]{3,25}$')]),
-      'max_backfill': new FormControl('90', [Validators.required, Validators.min(30), Validators.max(180)]),
+      'coop_max_backfill': new FormControl('90', [Validators.required, Validators.min(30), Validators.max(180)]),
       'is_active': new FormControl('on'),
     });
   }
@@ -113,7 +113,7 @@ export class RetailerFormComponent implements OnInit {
     this.retailer.name = this.retailerForm.get('name')?.value;
     this.retailer.bq_ga_table = this.retailerForm.get('bq_ga_table')?.value;
     this.retailer.time_zone = this.retailerForm.get('time_zone')?.value;
-    this.retailer.max_backfill = this.retailerForm.get('max_backfill')?.value;
+    this.retailer.coop_max_backfill = this.retailerForm.get('coop_max_backfill')?.value;
     this.retailer.is_active = this.retailerForm.get('is_active')?.value;
     if(this.retailer['bq_updated_at'] || this.retailer['bq_updated_at'] === ''){
       delete this.retailer['bq_updated_at'];
@@ -153,7 +153,7 @@ export class RetailerFormComponent implements OnInit {
     }
     this.retailerForm.patchValue({ "bq_ga_table": retailer.bq_ga_table });
     this.retailerForm.patchValue({ "time_zone": retailer.time_zone });
-    this.retailerForm.patchValue({ "max_backfill": retailer.max_backfill });
+    this.retailerForm.patchValue({ "coop_max_backfill": retailer.coop_max_backfill });
     this.retailerForm.patchValue({ "is_active": retailer.is_active });
   }
 
