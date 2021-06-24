@@ -16,6 +16,7 @@ from flask import abort, jsonify, request
 from . import coop_configurations
 from pydantic import ValidationError
 from core.models.configurations import CoopCampaignConfig
+from core.services.bigqueryservice import BqService
 
 @coop_configurations.route("/api/co_op_campaigns", methods=["GET"])
 def list_co_op_campaigns():
@@ -32,6 +33,7 @@ def add_co_op_campaign():
     new_config = config.add()
     if not new_config:
         abort(409)
+    BqService(config).create()
     return "", 201
 
 @coop_configurations.route("/api/co_op_campaigns/<string:name>", methods=["GET"])

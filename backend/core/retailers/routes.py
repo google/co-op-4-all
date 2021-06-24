@@ -16,6 +16,7 @@ from flask import abort, jsonify, request
 from . import retailers
 from pydantic import ValidationError
 from core.models.configurations import RetailerConfig, CoopCampaignConfig
+from core.services.bigqueryservice import BqService
 
 @retailers.route("/api/retailers", methods=["GET"])
 def list_retailers():
@@ -39,6 +40,7 @@ def add_retailer():
     new_config = config.add()
     if not new_config:
         abort(409)
+    BqService(config).create()
     return "", 201
 
 @retailers.route("/api/retailers/<string:name>", methods=["PUT"])

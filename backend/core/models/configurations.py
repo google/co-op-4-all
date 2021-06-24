@@ -26,7 +26,7 @@ class Filter(BaseModel):
 
 class RetailerConfig(DbModel):
     name: constr(regex="^[A-Za-z0-9\_]{3,50}$")
-    bq_ga_table: constr(regex="^[A-Za-z0-9\-\.]{10,50}events_$")
+    bq_ga_table: constr(regex="^[A-Za-z0-9\-\_\.]{10,50}events_$")
     time_zone: constr(regex="^[A-Za-z\_\/]{3,25}$")
     coop_max_backfill: conint(ge=30, le=180) = 90
     is_active: bool = True
