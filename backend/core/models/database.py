@@ -29,7 +29,8 @@ class DbModel(BaseModel):
     def get(cls, name):
         key = db_client.key(cls.__name__, name)
         result = db_client.get(key)
-        return result
+        if result:
+            return cls(**result)
 
     @classmethod
     def delete(cls, name):

@@ -53,6 +53,7 @@ def update_co_op_campaign(name):
     update = config.update(name)
     if not update:
         abort(404)
+    BqService(config).update()
     return "", 200
 
 @coop_configurations.route("/api/co_op_campaigns/<string:name>", methods=["DELETE"])
@@ -61,4 +62,5 @@ def delete_co_op_campaign(name):
     if not config:
         abort(404)
     CoopCampaignConfig.delete(name)
+    BqService(config).delete()
     return "", 204

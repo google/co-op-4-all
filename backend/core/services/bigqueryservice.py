@@ -52,6 +52,21 @@ class BqService():
         query = Template(file)
         return query.render(params=self.model_params)
 
+    def get_ga_table(self):
+        """Checks if GA4 table exists.
+
+        Returns:
+            bigquery.Table: GA4 Table.
+        """
+
+        table_name = self.model_params.get('bq_ga_table')
+        try:
+            table = client.get_table(table_name)
+        except NotFound as e:
+            # TODO: Add Logging
+            return
+        return table
+
     def ga_table_ready(self):
         """Checks if the GA4 table from the day before is ready.
 
@@ -70,27 +85,43 @@ class BqService():
         return table
 
     def create(self):
-        """Creates the datasets and tables in BigQuery for a retailer or CoopCampaign.
+        """Creates the datasets and tables in BigQuery for a Retailer or CoopCampaign.
 
         Returns:
             None
         """
+
         if self.model_type == 'RetailerConfig':
-            try:
-                dataset_name = self.model_params.get('name')
-                dataset_reference = client.dataset(dataset_name)
-                dataset = client.create_dataset(dataset_reference)
-            except AlreadyExists as e:
-                # TODO: add logging
-                return None
-            query = self.get_query('sql/create_retailer.sql')
-            job = client.query(query)
+            query = self.get_query('sql/create_retailer_bqtables.sql')
         else:
             query = self.get_query('sql/create_or_update_coop.sql')
-            job = client.query(query)
+        job = client.query(query)
 
     def update(self):
-        pass
+        """Updates tables in BigQuery for a Retailer of CoopCampaign.
+
+        Returns:
+            None
+        """
+
+        if self.model_type == 'RetailerConfig':
+            query = self.get_query('sql/update_retailer_bqtables')
+        else:
+            query = self.get_query('sql/create_or_update_coop.sql')
+        job = client.query(query)
 
     def delete(self):
-        pass
+        """Delests datasets and tables for a Retailer or CoopCampaign
+
+        Returns:
+            None
+        """
+
+        if self.model_type == 'RetailerConfig':
+            dataset_name = self.model_params.get('name')
+            client.delete_dataset(dataset_name, delete_contents=True)
+        else:
+            table_name = self.model_params.get('name')
+            dataset_name = self.model_params.get('retailer_name')
+            table_id = f'{dataset_name}.{table_name}'
+            client.delete_table(table_id)

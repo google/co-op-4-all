@@ -40,7 +40,10 @@ def add_retailer():
     new_config = config.add()
     if not new_config:
         abort(409)
-    BqService(config).create()
+    service = BqService(config)
+    if not service.get_ga_table():
+        return "GA4 Table does not exists.", 422
+    service.create()
     return "", 201
 
 @retailers.route("/api/retailers/<string:name>", methods=["PUT"])
@@ -53,6 +56,10 @@ def update_retailer(name):
     update = config.update(name)
     if not update:
         abort(404)
+    service = BqService(config)
+    if not service.get_ga_table():
+        return "GA4 Table does not exists", 422
+    BqService(config).update()
     return "", 200
 
 @retailers.route("/api/retailers/<string:name>", methods=["DELETE"])
@@ -62,4 +69,5 @@ def delete_retailer(name):
         abort(404)
     RetailerConfig.delete(name)
     CoopCampaignConfig.delete_multi(name, field='retailer_name')
+    BqService(config).delete()
     return "", 204

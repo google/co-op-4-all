@@ -13,31 +13,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
--- Create 2 tables and 1 dataset, all_transactions and all_clicks with paramters from a RetailerConfiguration.
+-- Updates all_clicks and all_transactions tables for a RetailerConfig
 
--- Table all_clicks contains all sessions with a gclid or dclid as an event_parameter.
--- Table all_transactions purchase events with ecommerce information.
+DECLARE next_partition DATE;
+DECLARE latest_partition DATE;
 
-CREATE SCHEMA IF NOT EXISTS {{ params['name'] }};
-
-CREATE TABLE IF NOT EXISTS
-  {{ params['name'] }}.all_transactions(
-    user_pseudo_id STRING,
-    transaction_date DATE,
-    transaction_datetime DATETIME,
-    transaction_id STRING,
-    session_number INT64,
-    item_id STRING,
-    item_name STRING,
-    item_brand STRING,
-    quantity INT64,
-    price FLOAT64,
-    item_revenue FLOAT64
-)
-PARTITION BY
-  transaction_date
-OPTIONS
-  (partition_expiration_days={{ params['coop_max_backfill'] }});
+SET latest_partition = DATE_SUB(CURRENT_DATE({{ params['time_zone'] }}), INTERVAL 1 DAY);
+SET next_partition = (
+    SELECT
+      DATE_ADD(PARSE_DATE('%Y%m%d', MAX(partition_id)), INTERVAL 1 DAY)
+    FROM
+      {{ params['name'] }}.INFORMATION_SCHEMA.PARTITIONS
+    WHERE
+      table_name IN ('all_gclids', 'all_transactions')
+);
 
 INSERT
   {{ params['name'] }}.all_transactions
@@ -56,24 +45,8 @@ SELECT DISTINCT
 FROM `{{ params['bq_ga_table'] }}`, UNNEST(items) it
 WHERE
   event_name = 'purchase'
-  AND _TABLE_SUFFIX BETWEEN FORMAT_DATE('%Y%m%d',DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY))
-  AND FORMAT_DATE('%Y%m%d',CURRENT_DATE('{{ params['time_zone'] }}'));
-
-
-CREATE TABLE IF NOT EXISTS
-  {{ params['name'] }}.all_clicks(
-    user_pseudo_id STRING,
-    session_number INT64,
-    coop_campaign STRING,
-    coop_gclid STRING,
-    coop_dclid STRING,
-    click_date DATE,
-    click_datetime DATETIME
-)
-PARTITION BY
-  click_date
-OPTIONS
-  (partition_expiration_days={{ params['coop_max_backfill'] }} +30);
+  AND _TABLE_SUFFIX BETWEEN FORMAT_DATE('%Y%m%d', next_partition)
+  AND FORMAT_DATE('%Y%m%d', latest_partition);
 
 INSERT
   {{ params['name'] }}.all_clicks
@@ -97,7 +70,8 @@ FROM (
   FROM
     `{{ params['bq_ga_table'] }}`
   WHERE
-    _TABLE_SUFFIX BETWEEN FORMAT_DATE('%Y%m%d',DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY))
-    AND FORMAT_DATE('%Y%m%d',CURRENT_DATE('{{ params['time_zone'] }}')))
+    _TABLE_SUFFIX BETWEEN FORMAT_DATE('%Y%m%d', next_partition)
+    AND FORMAT_DATE('%Y%m%d', latest_partition)
 WHERE coop_gclid IS NOT NULL OR coop_dclid IS NOT NULL
-GROUP BY 1,2,3,4,5,6
+GROUP BY 1,2,3,4,5,6;
+
