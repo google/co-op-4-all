@@ -3,3 +3,5 @@ pydantic==1.8.1
 google-cloud-datastore==2.1.2
 google-cloud-bigquery==2.20.0
 Jinja2==3.0.1
+pandas==1.2.5
+pyarrow==4.0.1

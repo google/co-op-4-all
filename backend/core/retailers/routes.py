@@ -28,7 +28,7 @@ def get_retailer(name):
     config = RetailerConfig.get(name)
     if not config:
         abort(404)
-    return jsonify(config)
+    return jsonify(config.dict())
 
 @retailers.route("/api/retailers", methods=["POST"])
 def add_retailer():

@@ -28,6 +28,7 @@ class RetailerConfig(DbModel):
     name: constr(regex="^[A-Za-z0-9\_]{3,50}$")
     bq_ga_table: constr(regex="^([A-Za-z0-9\-]{6,30})\.([A-Za-z0-9\_]{1,30})\.(events\_\*)$")
     time_zone: constr(regex="^[A-Za-z\_\/]{3,25}$")
+    currency: constr(regex="^[A-Za-z]{3}$")
     coop_max_backfill: conint(ge=30, le=180) = 90
     is_active: bool = True
     created_at: datetime = None

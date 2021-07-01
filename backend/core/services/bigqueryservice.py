@@ -33,8 +33,9 @@ class BqService():
 
     def __init__(self, model_config):
         self.model_config = model_config
-        self.model_params = model_config.dict()
         self.model_type = model_config.__class__.__name__
+        # To support mixed model params
+        self.model_params = model_config.dict() if self.model_type != 'dict' else model_config
 
     def get_query(self, sql_file):
         """Reads a sql file and adds query parameters.
@@ -83,6 +84,33 @@ class BqService():
             # TODO: Add logging
             return None
         return table
+
+    def execute_query(self, sql_file):
+        """Executes a query as a job and waits for the results
+
+        Args:
+            sql_file (str): The query to be executed.
+
+        Returns:
+            result: the rows retrieved by the executed query.
+        """
+        query = self.get_query(sql_file)
+        job = client.query(query)
+        result = job.result()
+        return result
+
+    def get_table_data(self, sql_file):
+        """Gets the table data of the specified query as a dataFrame
+
+            Args:
+            sql_file (str): The query to be executed.
+
+            Returns:
+                rows_df (dataFrame): A dataFrame with the query results
+        """
+        result = self.execute_query(sql_file)
+        rows_df = result.to_dataframe()
+        return rows_df
 
     def create(self):
         """Creates the datasets and tables in BigQuery for a Retailer or CoopCampaign.
