@@ -40,6 +40,18 @@
         </mat-form-field>
     </div>
     <div class="form-item">
+        <div><label>Currency</label></div>
+        <mat-form-field appearance="legacy">
+            <mat-label>Currency</mat-label>
+            <input matInput formControlName="currency">
+            <mat-icon matSuffix>attach_money</mat-icon>
+            <mat-hint *ngIf="isInvalidInput('currency')">
+                Please enter a valid <a target="_blank"
+                    href="https://developers.google.com/adwords/api/docs/appendix/codes-formats#expandable-18">Currency</a>
+            </mat-hint>
+        </mat-form-field>
+    </div>
+    <div class="form-item">
         <div><label>Co-Op Max Backfill</label></div>
         <mat-form-field appearance="legacy">
             <mat-label>Co-Op Max Backfill</mat-label>

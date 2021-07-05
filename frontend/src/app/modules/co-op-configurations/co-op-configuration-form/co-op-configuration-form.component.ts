@@ -81,7 +81,7 @@ export class CoopConfigurationFormComponent implements OnInit {
 
   buildNewCoopConfiguration() {
     let filter: Filter = {
-      'type': 'brand',
+      'type': 'item_brand',
       'data': []
     }
     let destination: GoogleAdsDestination = {
@@ -114,9 +114,9 @@ export class CoopConfigurationFormComponent implements OnInit {
   buildFiltersFormGroup(): FormGroup {
     return new FormGroup({
       'types': new FormControl([], [Validators.required]),
-      'brand': new FormGroup({}),
-      'product_name': new FormGroup({}),
-      'product_sku': new FormGroup({}),
+      'item_brand': new FormGroup({}),
+      'item_name': new FormGroup({}),
+      'item_id': new FormGroup({}),
     })
   }
 
@@ -130,39 +130,39 @@ export class CoopConfigurationFormComponent implements OnInit {
 
   getFilterInformation(filterTye: any, option: string): string {
     let options: { [key: string]: any } = {};
-    options['brand'] = {
-      'type': 'brand',
+    options['item_brand'] = {
+      'type': 'item_brand',
       'optionLabel': 'Brand',
       'textAreaLabel': 'Brand Filter',
       'placeholder': `Brand1\nBrand 2`,
-      'formControlName': 'brand_filter'
+      'formControlName': 'item_brand_filter'
     };
-    options['product_name'] = {
-      'type': 'product_name',
+    options['item_name'] = {
+      'type': 'item_name',
       'optionLabel': "Product Name",
       'textAreaLabel': 'Product Name Filter',
       'placeholder': `Product Name 1\nProduct Name 2`,
-      'formControlName': 'product_name_filter'
+      'formControlName': 'item_name_filter'
     };
-    options['product_sku'] = {
-      'type': 'product_sku',
+    options['item_id'] = {
+      'type': 'item_id',
       'optionLabel': "Product SKU",
       'textAreaLabel': 'Product SKU Filter',
       'placeholder': `ABCD1234567\nFGHI1234567`,
-      'formControlName': 'product_sku_filter'
+      'formControlName': 'item_id_filter'
     };
     return options[filterTye][option];
   }
 
   buildFilterOptionsForSelect() {
     return [{
-      'value': 'brand',
+      'value': 'item_brand',
       'label': 'Brand'
     }, {
-      'value': 'product_name',
+      'value': 'item_name',
       'label': "Product Name"
     }, {
-      'value': 'product_sku',
+      'value': 'item_id',
       'label': "Product SKU"
     }];
   }
