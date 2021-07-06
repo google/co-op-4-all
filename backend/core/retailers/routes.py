@@ -15,20 +15,22 @@
 from flask import abort, jsonify, request
 from . import retailers
 from pydantic import ValidationError
-from core.models.configurations import RetailerConfig, CoopCampaignConfig
-from core.services.bigqueryservice import BqService
+from core.models.configurations import RetailerConfig
+from core.services.coop_service import CoopService
+
+coop_service = CoopService()
 
 @retailers.route("/api/retailers", methods=["GET"])
 def list_retailers():
-    configs = RetailerConfig.get_all()
+    configs = coop_service.get_all('RetailerConfig')
     return jsonify(configs)
 
 @retailers.route("/api/retailers/<string:name>", methods=["GET"])
 def get_retailer(name):
-    config = RetailerConfig.get(name)
+    config = coop_service.get_config('RetailerConfig', name)
     if not config:
         abort(404)
-    return jsonify(config.dict())
+    return jsonify(config)
 
 @retailers.route("/api/retailers", methods=["POST"])
 def add_retailer():
@@ -37,13 +39,9 @@ def add_retailer():
         config = RetailerConfig(**data)
     except ValidationError as e:
         return jsonify(e.json()), 422
-    new_config = config.add()
+    new_config = coop_service.create_config(config)
     if not new_config:
         abort(409)
-    service = BqService(config)
-    if not service.get_ga_table():
-        return "GA4 Table does not exists.", 422
-    service.create()
     return "", 201
 
 @retailers.route("/api/retailers/<string:name>", methods=["PUT"])
@@ -53,21 +51,14 @@ def update_retailer(name):
         config = RetailerConfig(**data)
     except ValidationError as e:
         return jsonify(e.json()), 422
-    update = config.update(name)
+    update = coop_service.update_config(config)
     if not update:
         abort(404)
-    service = BqService(config)
-    if not service.get_ga_table():
-        return "GA4 Table does not exists", 422
-    BqService(config).update()
     return "", 200
 
 @retailers.route("/api/retailers/<string:name>", methods=["DELETE"])
 def delete_retailer(name):
-    config = RetailerConfig.get(name)
+    config = coop_service.delete_config('RetailerConfig', name)
     if not config:
         abort(404)
-    RetailerConfig.delete(name)
-    CoopCampaignConfig.delete_multi(name, field='retailer_name')
-    BqService(config).delete()
     return "", 204

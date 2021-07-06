@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import logging
-from core.services.bigqueryservice import BqService
+from core.services.bigquery_service import BigqueryService
 
 class GoogleAdsService():
     '''Google Ads service that retrieves conversions for a specific
@@ -27,7 +27,7 @@ class GoogleAdsService():
 
     def __init__(self, model_config):
         self.model_config = model_config
-        self.bq_service = BqService(model_config)
+        self.bq_client = BigqueryService()
 
     def __get_formatted_conversions(self, sql_file):
         '''Formats the retrieved rows of the specified query by removing
@@ -39,7 +39,7 @@ class GoogleAdsService():
             Returns:
                 conversions (list): A list of formatted conversions
         '''
-        conversions = self.bq_service.get_table_data(sql_file)
+        conversions = self.bq_client.get_table_data(sql_file, self.model_config)
         for h in conversions.columns.values.tolist():
             conversions[h.replace("_", " ")] = conversions[h]
             del conversions[h]

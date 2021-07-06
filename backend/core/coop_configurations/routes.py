@@ -16,13 +16,15 @@ from flask import abort, jsonify, request, Response
 import logging
 from . import coop_configurations
 from pydantic import ValidationError
-from core.models.configurations import CoopCampaignConfig, RetailerConfig
-from core.services.bigqueryservice import BqService
+from core.models.configurations import CoopCampaignConfig
 from core.services.google_ads_service import GoogleAdsService
+from core.services.coop_service import CoopService
+
+coop_service = CoopService()
 
 @coop_configurations.route("/api/co_op_campaigns", methods=["GET"])
 def list_co_op_campaigns():
-    configs = CoopCampaignConfig.get_all()
+    configs = coop_service.get_all('CoopCampaignConfig')
     return jsonify(configs)
 
 @coop_configurations.route("/api/co_op_campaigns", methods=["POST"])
@@ -32,18 +34,17 @@ def add_co_op_campaign():
         config = CoopCampaignConfig(**data)
     except ValidationError as e:
         return jsonify(e.json()), 422
-    new_config = config.add()
+    new_config = coop_service.create_config(config)
     if not new_config:
         abort(409)
-    BqService(config).create()
     return "", 201
 
 @coop_configurations.route("/api/co_op_campaigns/<string:name>", methods=["GET"])
 def get_co_op_campaign(name):
-    config = CoopCampaignConfig.get(name)
+    config = coop_service.get_config('CoopCampaignConfig', name)
     if not config:
         abort(404)
-    return jsonify(config.dict())
+    return jsonify(config)
 
 @coop_configurations.route("/api/co_op_campaigns/<string:name>", methods=["PUT"])
 def update_co_op_campaign(name):
@@ -52,19 +53,16 @@ def update_co_op_campaign(name):
         config = CoopCampaignConfig(**data)
     except ValidationError as e:
         return jsonify(e.json()), 422
-    update = config.update(name)
+    update = coop_service.update_config(config)
     if not update:
         abort(404)
-    BqService(config).update()
     return "", 200
 
 @coop_configurations.route("/api/co_op_campaigns/<string:name>", methods=["DELETE"])
 def delete_co_op_campaign(name):
-    config = CoopCampaignConfig.get(name)
+    config = coop_service.delete_config('CoopCampaignConfig', name)
     if not config:
         abort(404)
-    CoopCampaignConfig.delete(name)
-    BqService(config).delete()
     return "", 204
 
 @coop_configurations.route("/api/co_op_campaigns/get_google_ads_conversions/<string:name>", methods=["GET"])
@@ -78,29 +76,29 @@ def get_google_ads_conversions(name):
         Returns:
         conversions (str): a list of Google Ads conversions in csv format.
     '''
-    coop_config = CoopCampaignConfig.get(name)
-    retailer = RetailerConfig.get(coop_config.retailer_name)
+    coop_config = coop_service.get_config('CoopCampaignConfig', name)
+    retailer = coop_service.get_config('RetailerConfig', coop_config['retailer_name'])
     if not coop_config or not retailer:
         abort(404)
-    if coop_config.is_active:
+    if coop_config['is_active']:
         # Creating a dict for the BqService params
-        coop_config_params = coop_config.dict()
-        coop_config_params['currency'] = retailer.currency
-        coop_config_params['time_zone'] = retailer.time_zone
+        coop_config_params = dict(coop_config)
+        coop_config_params['currency'] = retailer['currency']
+        coop_config_params['time_zone'] = retailer['time_zone']
         google_ads_service = GoogleAdsService(coop_config_params)
         conversions = google_ads_service.get_conversions()
         if not conversions:
             return f'There was a problem getting the conversions \
-            for the Co-Op Config { coop_config.name }', 500
+            for the Co-Op Config { coop_config["name"] }', 500
         response = Response(response=conversions,
                             status=200, mimetype="text/csv")
         response.headers["Content-Type"] = "text/csv"
         logging.info(
             f'Coop Configurations Route - get_google_ads_conversions - \
-            Conversions for the Co-Op Config {coop_config.name} were sent successfully!')
+            Conversions for the Co-Op Config {coop_config["name"]} were sent successfully!')
         return response
     else:
         logging.info(
             f'Coop Configurations Route - get_google_ads_conversions - The Co-Op Config \
-            {coop_config.name} is inactive. Conversions were not sent to Google Ads.')
+            {coop_config["name"]} is inactive. Conversions were not sent to Google Ads.')
         return '', 204

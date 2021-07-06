@@ -15,7 +15,6 @@
 from datetime import datetime, timezone
 from typing import List, Optional, Union
 from pydantic import BaseModel, conint, conlist, constr, validator
-from core.models.database import DbModel
 from core.models.destinations import Dv360Destination, GoogleAdsDestination
 
 
@@ -24,7 +23,7 @@ class Filter(BaseModel):
     data: conlist(str, min_items=1)
 
 
-class RetailerConfig(DbModel):
+class RetailerConfig(BaseModel):
     name: constr(regex="^[A-Za-z0-9\_]{3,50}$")
     bq_ga_table: constr(regex="^([A-Za-z0-9\-]{6,30})\.([A-Za-z0-9\_]{1,30})\.(events\_\*)$")
     time_zone: constr(regex="^[A-Za-z\_\/]{3,25}$")
@@ -44,7 +43,7 @@ class RetailerConfig(DbModel):
         return datetime.now(timezone.utc)
 
 
-class CoopCampaignConfig(DbModel):
+class CoopCampaignConfig(BaseModel):
     name: constr(regex="^[A-Za-z0-9\_]{3,50}$")
     retailer_name: constr(regex="^[A-Za-z0-9\_]{3,50}$")
     utm_campaigns: conlist(str, min_items=1)
