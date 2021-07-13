@@ -66,8 +66,8 @@ export class RetailersComponent implements OnInit {
       this.dataSource.data = this.retailers;
       this.showSpinner = false;
     }).catch(error => {
-      console.log(`There was an error while fetching the retailers: ${error}`);
-      this.openSnackBar(`There was an error while fetching the retailers: ${error}`);
+      console.log(`ERROR: ${error}`);
+      this.openSnackBar(`ERROR: ${error}`);
       this.showSpinner = false;
     });
   }
@@ -86,8 +86,8 @@ export class RetailersComponent implements OnInit {
         this.showSpinner = false;
       })
       .catch(error => {
-        console.log(`There was an error while deleting the retailer ${retailer.name}: ${error}`);
-        this.openSnackBar(`There was an error while deleting the retailer ${retailer.name}: ${error}`);
+        console.log(`ERROR: ${error}`);
+        this.openSnackBar(`ERROR: ${error}`);
         this.showSpinner = false;
       });
     } else {

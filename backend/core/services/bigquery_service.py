@@ -110,7 +110,7 @@ class BigqueryService():
         model_type = model.__class__.__name__
         model_params = model.dict()
         if model_type == 'RetailerConfig':
-            query = self.get_query('sql/update_retailer_bqtables', model_params)
+            query = self.get_query('sql/update_retailer_bqtables.sql', model_params)
         else:
             query = self.get_query('sql/create_or_update_coop.sql', model_params)
         job = self.client.query(query)

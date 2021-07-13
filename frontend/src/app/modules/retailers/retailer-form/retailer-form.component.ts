@@ -94,8 +94,8 @@ export class RetailerFormComponent implements OnInit {
       this.showSpinner = false;
     })
     .catch(error => {
-      console.log(`There was an error while fetching the retailer ${name}: ${error}`);
-      this.openSnackBar(`There was an error while fetching the retailer ${name}: ${error}`);
+      console.log(`ERROR: ${error}`);
+      this.openSnackBar(`ERROR: ${error}`);
       this.showSpinner = false;
     });
   }
@@ -130,8 +130,8 @@ export class RetailerFormComponent implements OnInit {
       this.showSpinner = false;
     })
     .catch(error => {
-        console.log(`There was an error while adding the retailer ${this.retailer.name}: ${error}`);
-        this.openSnackBar(`There was an error while adding the retailer ${this.retailer.name}: ${error}`);
+        console.log(`ERROR: ${error}`);
+        this.openSnackBar(`ERROR: ${error}`);
         this.showSpinner = false;
     });
   }
@@ -143,8 +143,8 @@ export class RetailerFormComponent implements OnInit {
       this.showSpinner = false;
     })
     .catch(error => {
-      console.log(`There was an error while updating the retailer ${this.retailer.name}: ${error}`);
-      this.openSnackBar(`There was an error while updating the retailer ${this.retailer.name}: ${error}`);
+      console.log(`ERROR: ${error}`);
+      this.openSnackBar(`ERROR: ${error}`);
       this.showSpinner = false;
     });
   }

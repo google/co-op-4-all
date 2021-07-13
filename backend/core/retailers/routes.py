@@ -17,19 +17,22 @@ from . import retailers
 from pydantic import ValidationError
 from core.models.configurations import RetailerConfig
 from core.services.coop_service import CoopService
+from core.exceptions.coop_exception import CoopException
 
 coop_service = CoopService()
 
 @retailers.route("/api/retailers", methods=["GET"])
 def list_retailers():
     configs = coop_service.get_all('RetailerConfig')
+    if not configs:
+        raise CoopException('The retailers were not found.', status_code=404)
     return jsonify(configs)
 
 @retailers.route("/api/retailers/<string:name>", methods=["GET"])
 def get_retailer(name):
     config = coop_service.get_config('RetailerConfig', name)
     if not config:
-        abort(404)
+        raise CoopException('The retailer was not found.', status_code=404)
     return jsonify(config)
 
 @retailers.route("/api/retailers", methods=["POST"])
@@ -37,11 +40,12 @@ def add_retailer():
     data = dict(request.json)
     try:
         config = RetailerConfig(**data)
-    except ValidationError as e:
-        return jsonify(e.json()), 422
+    except ValidationError as error:
+        raise CoopException(f'Validation error: {error}', status_code=422)
     new_config = coop_service.create_config(config)
     if not new_config:
-        abort(409)
+        raise CoopException('The retailer could not be added. \
+        Please check the logs and try again.', status_code=409)
     return "", 201
 
 @retailers.route("/api/retailers/<string:name>", methods=["PUT"])
@@ -49,16 +53,25 @@ def update_retailer(name):
     data = dict(request.json)
     try:
         config = RetailerConfig(**data)
-    except ValidationError as e:
-        return jsonify(e.json()), 422
-    update = coop_service.update_config(config)
-    if not update:
-        abort(404)
+    except ValidationError as error:
+        raise CoopException(f'Validation error: {error}', status_code=422)
+    updated_config = coop_service.update_config(config)
+    if not updated_config:
+        raise CoopException('The retailer could not be updated. \
+        Please check the logs and try again.', status_code=409)
     return "", 200
 
 @retailers.route("/api/retailers/<string:name>", methods=["DELETE"])
 def delete_retailer(name):
     config = coop_service.delete_config('RetailerConfig', name)
     if not config:
-        abort(404)
+        raise CoopException('The retailer could not be deleted. \
+        Please check the logs try again.', status_code=409)
     return "", 204
+
+# Exception Handler
+@retailers.errorhandler(CoopException)
+def handle_coop_exception(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
