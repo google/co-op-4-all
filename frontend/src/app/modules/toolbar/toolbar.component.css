@@ -1,4 +1,7 @@
 img {
-    width: 120px;
-    margin-top: 12px;
+    margin: 15px 0px 11px -25px
+}
+
+.toolbar {
+    height: 100px;
 }

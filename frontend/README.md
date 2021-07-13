@@ -1,3 +1,6 @@
+# Dependencies
+Run `npm install` at this folder level to install the required dependencies.
+
 # Frontend
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.0.0.
