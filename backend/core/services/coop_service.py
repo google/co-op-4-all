@@ -12,8 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . bigquery_service import BigqueryService
-from . datastore_service import DatastoreClient
+import logging
+from datetime import date, datetime, timedelta
+import re
+from zoneinfo import ZoneInfo
+
+from .bigquery_service import BigqueryService
+from .datastore_service import DatastoreClient
+
 
 class CoopService():
     def __init__(self):
@@ -32,9 +38,11 @@ class CoopService():
             config (datastore.Entity): The new entity created.
         """
 
-        config = self.ds_client.add(model)
+        model_type = model.__class__.__name__
+        model_params = model.dict(exclude_none=True)
+        config = self.ds_client.add(model_type, model_params)
         if config:
-            self.bq_client.create(model)
+            self.bq_client.create(model_type, model_params)
         return config
 
     def update_config(self, model):
@@ -48,9 +56,11 @@ class CoopService():
             config (datastore.Entity): The updated entity.
         """
 
-        config = self.ds_client.update(model)
+        model_type = model.__class__.__name__
+        model_params = model.dict(exclude_none=True)
+        config = self.ds_client.update(model_type, model_params)
         if config:
-            self.bq_client.update(model)
+            self.bq_client.update(model_type, model_params)
         return config
 
     def delete_config(self, model_type, name):
@@ -99,3 +109,75 @@ class CoopService():
             config (lst): A list of entities.
         """
         return self.ds_client.get_all(model_type)
+
+    def retailer_ready(self, retailer_config):
+        """Checks if retailer tables are ready to be updated.
+        A retailer is ready if there was not an update for the
+        current day.
+
+        Args:
+            retailer_config (dict): Retailer parameters.
+
+        Returns:
+            bool: True if ready, False otherwise.
+        """
+
+        last_update = retailer_config.get('bq_updated_at')
+        time_zone = retailer_config.get('time_zone')
+        current_date = datetime.now(ZoneInfo(time_zone))
+
+        return not last_update or last_update.day < current_date.day
+
+    def coop_campaign_ready(self, retailer_config, coop_config):
+        """Checks if CoopCampaign table is ready to be updated.
+        A CoopCampaing is ready if it was last modified before
+        the retailer tables.
+
+        Args:
+            coop_config (dict): CoopCampaign parameters.
+
+        Returns:
+            bool: True if ready, False otherwise.
+        """
+
+        retailer_name = retailer_config.get('name')
+        clicks_table = f'{retailer_name}.all_clicks'
+        clicks_table_info = self.bq_client.get_table_info(clicks_table)
+        click_table_modified_at = clicks_table_info.get('modified_at')
+        coop_table = f'{retailer_name}.{coop_config["name"]}'
+        coop_table_info = self.bq_client.get_table_info(coop_table)
+        coop_modified_at = coop_table_info.get('modified_at')
+
+        return coop_modified_at < click_table_modified_at
+
+    def update_all(self):
+        """Checks each retailer and campaign and updates if needed.
+        """
+
+        retailer_configs = self.ds_client.get_all('RetailerConfig')
+        coop_configs = self.ds_client.get_all('CoopCampaignConfig')
+
+        for retailer_config in retailer_configs:
+
+            if self.bq_client.ga_table_ready(retailer_config):
+                retailer_name = retailer_config.get('name')
+                time_zone = retailer_config.get('time_zone')
+                current_date = datetime.now(ZoneInfo(time_zone))
+
+                if self.retailer_ready(retailer_config):
+                    self.bq_client.update('RetailerConfig', retailer_config)
+                    retailer_config['bq_updated_at'] = current_date
+                    self.ds_client.update('RetailerConfig', retailer_config)
+                    logging.info(
+                        f'CoopService - update_all - Updated \
+                        {retailer_name} all_clicks and all_transactions tables.')
+                else:
+                    for coop_config in coop_configs:
+
+                        if coop_config['retailer_name'] == retailer_name:
+
+                            if self.coop_campaign_ready(retailer_config, coop_config):
+                                self.bq_client.update('CoopCampaignConfig', coop_config)
+                                logging.info(
+                                    f'CoopService - update_all - Updated \
+                                    {coop_config["name"]} table')

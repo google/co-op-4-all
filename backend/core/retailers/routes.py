@@ -69,6 +69,11 @@ def delete_retailer(name):
         Please check the logs try again.', status_code=409)
     return "", 204
 
+@retailers.route("/api/retailers/update_all_configs", methods=["POST"])
+def update_all_configs():
+    coop_service.update_all()
+    return "", 200
+
 # Exception Handler
 @retailers.errorhandler(CoopException)
 def handle_coop_exception(error):
