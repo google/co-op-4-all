@@ -46,8 +46,8 @@ export class CoopConfigurationsComponent implements OnInit {
       this.dataSource.data = this.coopConfigurations;
       this.showSpinner = false;
     }).catch(error => {
-        console.log(`There was an error while fetching the Co-Op configurations: ${error}`);
-        this.openSnackBar(`There was an error while fetching the Co-Op configurations: ${error}`);
+        console.error(error);
+        this.openSnackBar(`ERROR: ${error}`);
         this.showSpinner = false;
     });
   }
@@ -66,8 +66,8 @@ export class CoopConfigurationsComponent implements OnInit {
         this.showSpinner = false;
       })
       .catch(error => {
-        console.log(`There was an error while deleting the Co-Op Configuration ${coopConfiguration.name}: ${error}.`)
-        this.openSnackBar(`There was an error while deleting the Co-Op Configuration ${coopConfiguration.name}: ${error}.`);
+        console.error(error);
+        this.openSnackBar(`ERROR: ${error}.`);
         this.showSpinner = false;
       });
     } else {

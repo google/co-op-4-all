@@ -31,7 +31,14 @@
         <div><label>Timezone</label></div>
         <mat-form-field appearance="legacy">
             <mat-label>Timezone</mat-label>
-            <input matInput formControlName="time_zone">
+            <mat-select formControlName="time_zone">
+                <input placeholder="Search..." matInput type="text"
+                (keyup)="applyTimezoneFilter($event)" class="input-filter">
+                <mat-option></mat-option>
+                <mat-option *ngFor="let timezone of selectedTimezones" [value]="timezone">
+                    {{timezone}}
+                </mat-option>
+            </mat-select>
             <mat-icon matSuffix>schedule</mat-icon>
             <mat-hint *ngIf="isInvalidInput('time_zone')">
                 Please enter a valid <a target="_blank"
@@ -43,7 +50,14 @@
         <div><label>Currency</label></div>
         <mat-form-field appearance="legacy">
             <mat-label>Currency</mat-label>
-            <input matInput formControlName="currency">
+            <mat-select formControlName="currency">
+                <input placeholder="Search..." matInput type="text"
+                (keyup)="applyCurrencyCodesFilter($event)" class="input-filter">
+                <mat-option></mat-option>
+                <mat-option *ngFor="let currency of selectedCurrencyCodes" [value]="currency">
+                    {{currency}}
+                </mat-option>
+            </mat-select>
             <mat-icon matSuffix>attach_money</mat-icon>
             <mat-hint *ngIf="isInvalidInput('currency')">
                 Please enter a valid <a target="_blank"

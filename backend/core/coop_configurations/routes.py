@@ -12,19 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask import abort, jsonify, request, Response
+from flask import jsonify, request, Response
 import logging
 from . import coop_configurations
 from pydantic import ValidationError
 from core.models.configurations import CoopCampaignConfig
 from core.services.google_ads_service import GoogleAdsService
 from core.services.coop_service import CoopService
+from core.exceptions.coop_exception import CoopException
 
 coop_service = CoopService()
 
 @coop_configurations.route("/api/co_op_campaigns", methods=["GET"])
 def list_co_op_campaigns():
     configs = coop_service.get_all('CoopCampaignConfig')
+    if not configs:
+        raise CoopException('The Co-Op configs were not found.', status_code=404)
     return jsonify(configs)
 
 @coop_configurations.route("/api/co_op_campaigns", methods=["POST"])
@@ -32,18 +35,19 @@ def add_co_op_campaign():
     data = dict(request.json)
     try:
         config = CoopCampaignConfig(**data)
-    except ValidationError as e:
-        return jsonify(e.json()), 422
+    except ValidationError as error:
+        raise CoopException(f'Validation error: {error}', status_code=422)
     new_config = coop_service.create_config(config)
     if not new_config:
-        abort(409)
+        raise CoopException('The Co-Op config could not be added. \
+        Please check the logs and try again.', status_code=409)
     return "", 201
 
 @coop_configurations.route("/api/co_op_campaigns/<string:name>", methods=["GET"])
 def get_co_op_campaign(name):
     config = coop_service.get_config('CoopCampaignConfig', name)
     if not config:
-        abort(404)
+        raise CoopException('The Co-Op config was not found.', status_code=404)
     return jsonify(config)
 
 @coop_configurations.route("/api/co_op_campaigns/<string:name>", methods=["PUT"])
@@ -51,18 +55,20 @@ def update_co_op_campaign(name):
     data = dict(request.json)
     try:
         config = CoopCampaignConfig(**data)
-    except ValidationError as e:
-        return jsonify(e.json()), 422
-    update = coop_service.update_config(config)
-    if not update:
-        abort(404)
+    except ValidationError as error:
+        raise CoopException(f'Validation error: {error}', status_code=422)
+    updated_config = coop_service.update_config(config)
+    if not updated_config:
+        raise CoopException('The Co-Op config could not be updated. \
+        Please check the logs and try again.', status_code=409)
     return "", 200
 
 @coop_configurations.route("/api/co_op_campaigns/<string:name>", methods=["DELETE"])
 def delete_co_op_campaign(name):
     config = coop_service.delete_config('CoopCampaignConfig', name)
     if not config:
-        abort(404)
+        raise CoopException('The Co-Op config could not be deleted. \
+        Please check the logs try again.', status_code=409)
     return "", 204
 
 @coop_configurations.route("/api/co_op_campaigns/get_google_ads_conversions/<string:name>", methods=["GET"])
@@ -78,8 +84,10 @@ def get_google_ads_conversions(name):
     '''
     coop_config = coop_service.get_config('CoopCampaignConfig', name)
     retailer = coop_service.get_config('RetailerConfig', coop_config['retailer_name'])
-    if not coop_config or not retailer:
-        abort(404)
+    if not retailer:
+        raise CoopException('The retailer was not found.', status_code=404)
+    if not coop_config:
+        raise CoopException('The Co-Op config was not found.', status_code=404)
     if coop_config['is_active']:
         # Creating a dict for the BqService params
         coop_config_params = dict(coop_config)
@@ -102,3 +110,10 @@ def get_google_ads_conversions(name):
             f'Coop Configurations Route - get_google_ads_conversions - The Co-Op Config \
             {coop_config["name"]} is inactive. Conversions were not sent to Google Ads.')
         return '', 204
+
+# Exception Handler
+@coop_configurations.errorhandler(CoopException)
+def handle_coop_exception(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response

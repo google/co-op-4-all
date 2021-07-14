@@ -33,3 +33,8 @@
 .form-buttons-container button {
     margin: 20px 0px 0px 10px;
 }
+
+.input-filter {
+    background: #eaeaea;
+    height: 50px;
+}

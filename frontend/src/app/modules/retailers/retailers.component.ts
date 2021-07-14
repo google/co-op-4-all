@@ -66,7 +66,7 @@ export class RetailersComponent implements OnInit {
       this.dataSource.data = this.retailers;
       this.showSpinner = false;
     }).catch(error => {
-      console.log(`ERROR: ${error}`);
+      console.error(error);
       this.openSnackBar(`ERROR: ${error}`);
       this.showSpinner = false;
     });
@@ -86,7 +86,7 @@ export class RetailersComponent implements OnInit {
         this.showSpinner = false;
       })
       .catch(error => {
-        console.log(`ERROR: ${error}`);
+        console.error(error);
         this.openSnackBar(`ERROR: ${error}`);
         this.showSpinner = false;
       });

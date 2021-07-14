@@ -25,6 +25,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Retailer } from '../../../models/retailer/retailer';
 import { RetailersService } from '../services/retailers.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { getTimezones } from  '../../../utils/timezones';
+import { getCurrencyCodes } from  '../../../utils/currency-codes';
 
 @Component({
   selector: 'app-retailer-form',
@@ -38,6 +40,10 @@ export class RetailerFormComponent implements OnInit {
   retailer: Retailer
   isNew: boolean
   showSpinner = false;
+  timezones: Array<string>
+  selectedTimezones : Array<string>
+  currencyCodes: Array<string>
+  selectedCurrencyCodes: Array<string>
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -47,6 +53,10 @@ export class RetailerFormComponent implements OnInit {
     this.title = this.isNew ? 'New Retailer' : 'Edit Retailer';
     this.retailerForm = this.buildRetailerFormGroup();
     this.retailer = {} as Retailer;
+    this.timezones = getTimezones();
+    this.selectedTimezones = this.timezones;
+    this.currencyCodes = getCurrencyCodes();
+    this.selectedCurrencyCodes = this.currencyCodes;
   }
 
   ngOnInit(): void {
@@ -94,7 +104,7 @@ export class RetailerFormComponent implements OnInit {
       this.showSpinner = false;
     })
     .catch(error => {
-      console.log(`ERROR: ${error}`);
+      console.error(error);
       this.openSnackBar(`ERROR: ${error}`);
       this.showSpinner = false;
     });
@@ -130,7 +140,7 @@ export class RetailerFormComponent implements OnInit {
       this.showSpinner = false;
     })
     .catch(error => {
-        console.log(`ERROR: ${error}`);
+        console.error(error);
         this.openSnackBar(`ERROR: ${error}`);
         this.showSpinner = false;
     });
@@ -143,7 +153,7 @@ export class RetailerFormComponent implements OnInit {
       this.showSpinner = false;
     })
     .catch(error => {
-      console.log(`ERROR: ${error}`);
+      console.error(error);
       this.openSnackBar(`ERROR: ${error}`);
       this.showSpinner = false;
     });
@@ -164,6 +174,23 @@ export class RetailerFormComponent implements OnInit {
   isInvalidInput(property: string) {
     return !this.retailerForm.get(property)?.valid
       && this.retailerForm.get(property)?.touched
+  }
+
+  applyTimezoneFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.selectedTimezones = this.filter(this.timezones, filterValue);
+  }
+
+  applyCurrencyCodesFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.selectedCurrencyCodes = this.filter(this.currencyCodes, filterValue);
+  }
+
+  filter(list: Array<string>, value: string) {
+    let filter = value.toLowerCase();
+    return list.filter(option =>
+      option.toLowerCase().startsWith(filter)
+    );
   }
 
   buildMessage(action: string) {

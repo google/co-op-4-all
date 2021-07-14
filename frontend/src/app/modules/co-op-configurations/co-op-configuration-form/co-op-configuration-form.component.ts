@@ -54,7 +54,7 @@ export class CoopConfigurationFormComponent implements OnInit {
     private retailersService: RetailersService,
     private _snackBar: MatSnackBar) {
     this.isNew = this.router.url.endsWith('new');
-    this.title = this.isNew ? 'New Co-Op Configuration' : 'Edit Co-Op Configuration';
+    this.title = this.isNew ? 'New Co-Op Campaign Configuration' : 'Edit Co-Op Campaign Configuration';
     this.retailers = [];
     this.coopConfiguration = {} as CoopConfiguration;
     this.coopConfigurationForm = this.buildCoopFormGroup();
@@ -183,8 +183,8 @@ export class CoopConfigurationFormComponent implements OnInit {
       this.setFormGroupValues(this.coopConfiguration);
       this.showSpinner = false;
     }).catch(error => {
-      console.log(`The was an error getting the Co-Op Configuration ${name}: ${error}`);
-      this.openSnackBar(`The was an error getting the Co-Op Configuration ${name}: ${error}`);
+      console.error(error);
+      this.openSnackBar(`ERROR: ${error}`);
       this.showSpinner = false;
     });
   }
@@ -323,8 +323,8 @@ export class CoopConfigurationFormComponent implements OnInit {
       this.moveToCoopConfigurations();
       this.showSpinner = false;
     }).catch(error => {
-      console.log(`There was an error while creating the Co-Op Configuration: ${error}`);
-      this.openSnackBar(`There was an error while creating the Co-Op Configuration: ${error}`);
+      console.error(error);
+      this.openSnackBar(`ERROR: ${error}`);
       this.showSpinner = false;
     });
   }
@@ -335,8 +335,8 @@ export class CoopConfigurationFormComponent implements OnInit {
       this.moveToCoopConfigurations();
       this.showSpinner = false;
     }).catch(error => {
-      console.log(`There was an error while updating the Co-Op Configuration: ${error}`);
-      this.openSnackBar(`There was an error while updating the Co-Op Configuration: ${error}`);
+      console.error(error);
+      this.openSnackBar(`ERROR: ${error}`);
       this.showSpinner = false;
     });
   }
@@ -346,8 +346,8 @@ export class CoopConfigurationFormComponent implements OnInit {
       this.retailers = retailers as Array<Retailer>;
       this.showSpinner = false;
     }).catch(error => {
-      console.log(`There was an error while fetching the retailers: ${error}`);
-      this.openSnackBar(`There was an error while fetching the retailers: ${error}`);
+      console.error(error);
+      this.openSnackBar(`ERROR: ${error}`);
       this.showSpinner = false;
     });
   }

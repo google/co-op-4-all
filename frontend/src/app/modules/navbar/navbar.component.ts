@@ -16,7 +16,7 @@ export class NavbarComponent {
       route:'retailers',
       icon: 'store'
     },{
-      link:'Co-Op Configurations',
+      link:'Co-Op Campaign Configurations',
       route: 'co-op-configurations',
       icon: 'settings'
     }];
