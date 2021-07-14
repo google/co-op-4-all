@@ -18,7 +18,7 @@ limitations under the License.
 DECLARE next_partition DATE;
 DECLARE latest_partition DATE;
 
-SET latest_partition = DATE_SUB(CURRENT_DATE({{ params['time_zone'] }}), INTERVAL 1 DAY);
+SET latest_partition = DATE_SUB(CURRENT_DATE('{{ params['time_zone'] }}'), INTERVAL 1 DAY);
 SET next_partition = (
     SELECT
       DATE_ADD(PARSE_DATE('%Y%m%d', MAX(partition_id)), INTERVAL 1 DAY)
@@ -26,6 +26,7 @@ SET next_partition = (
       {{ params['name'] }}.INFORMATION_SCHEMA.PARTITIONS
     WHERE
       table_name IN ('all_gclids', 'all_transactions')
+      AND partition_id != '__NULL__'
 );
 
 INSERT
@@ -71,7 +72,7 @@ FROM (
     `{{ params['bq_ga_table'] }}`
   WHERE
     _TABLE_SUFFIX BETWEEN FORMAT_DATE('%Y%m%d', next_partition)
-    AND FORMAT_DATE('%Y%m%d', latest_partition)
+    AND FORMAT_DATE('%Y%m%d', latest_partition))
 WHERE coop_gclid IS NOT NULL OR coop_dclid IS NOT NULL
 GROUP BY 1,2,3,4,5,6;
 

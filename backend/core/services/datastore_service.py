@@ -88,42 +88,44 @@ class DatastoreClient():
         keys = list([entity for entity in query.fetch()])
         self.client.delete_multi(keys)
 
-    def add(self, model):
+    def add(self, model_type, model_params):
         """Saves the model to Datastore.
 
         Args:
-            model: A Pydantic model representing a CoopCampaingConfig
+            model_type (str): The model type (CoopCampaingConfig or RetailerConfig).
             or a RetailerConfig.
+            model_params (dict): Model parameters to save in datastore.
 
         Returns:
             entity (datastore.Entity): The new entity created.
         """
 
         with self.client.transaction() as t:
-            key = self.client.key(model.__class__.__name__, model.name)
+            key = self.client.key(model_type, model_params['name'])
             entity = self.client.get(key)
             if not entity:
                 entity = datastore.Entity(key)
-                entity.update(model.dict(exclude_none=True))
+                entity.update(model_params)
                 t.put(entity)
                 return entity
 
-    def update(self, model):
+    def update(self, model_type, model_params):
         """Updates the model in Datastore.
 
         Args:
-            model: A Pydantic model representing a CoopCampaingConfig
+            model_type (str): The model type (CoopCampaingConfig or RetailerConfig).
             or a RetailerConfig.
+            model_params (dict): Model parameters to update in datastore.
 
         Returns:
             entity (datastore.Entity): The updated entity.
         """
 
         with self.client.transaction() as t:
-            key = self.client.key(model.__class__.__name__, model.name)
+            key = self.client.key(model_type, model_params['name'])
             entity = self.client.get(key)
             if entity:
                 entity = datastore.Entity(key)
-                entity.update(model.dict(exclude_none=True))
+                entity.update(model_params)
                 t.put(entity)
                 return entity

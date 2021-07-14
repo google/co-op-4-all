@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import os
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
 from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from jinja2 import Template
@@ -39,30 +43,17 @@ class BigqueryService():
         query = Template(file)
         return query.render(params=query_params)
 
-    def get_table(self, name):
-        """Gets a table from BigQuery.
-
-        Returns:
-            bigquery.Table
-        """
-
-        try:
-            table = self.client.get_table(name)
-        except NotFound as e:
-            # TODO: Add Logging
-            return
-        return table
-
     def execute_query(self, sql_file, query_params):
         """Executes a query as a job and waits for the results.
 
         Args:
             sql_file (str): The query to be executed.
-            query_params(dict): Parameters to include in the query.
+            query_params (dict): Parameters to include in the query.
 
         Returns:
             result: the rows retrieved by the executed query.
         """
+
         query = self.get_query(sql_file, query_params)
         job = self.client.query(query)
         result = job.result()
@@ -83,34 +74,33 @@ class BigqueryService():
         rows_df = result.to_dataframe()
         return rows_df
 
-    def create(self, model):
-        """Creates the datasets and tables in BigQuery for a Retailer or CoopCampaign.
+    def create(self, model_type, model_params):
+        """Creates the datasets and tables in BigQuery
+        for a Retailer or CoopCampaign.
 
         Args:
-            model: A Pydantic model representing a CoopCampaingConfig
-            or a RetailerConfig.
+            model_type (str): The model type (CoopCampaingConfig or
+            RetailerConfig).
+            model_params (dict): Parameters to include in the query.
         """
 
-        model_type = model.__class__.__name__
-        model_params = model.dict()
         if model_type == 'RetailerConfig':
             query = self.get_query('sql/create_retailer_bqtables.sql', model_params)
         else:
             query = self.get_query('sql/create_or_update_coop.sql', model_params)
         job = self.client.query(query)
 
-    def update(self, model):
+    def update(self, model_type, model_params):
         """Updates tables in BigQuery for a Retailer or CoopCampaign.
 
         Args:
-            model: A Pydantic model representing a CoopCampaingConfig
-            or a RetailerConfig.
+            model_type (str): The model type (CoopCampaingConfig or
+            RetailerConfig).
+            model_params (dict): Parameters to include in the query.
         """
 
-        model_type = model.__class__.__name__
-        model_params = model.dict()
         if model_type == 'RetailerConfig':
-            query = self.get_query('sql/update_retailer_bqtables', model_params)
+            query = self.get_query('sql/update_retailer_bqtables.sql', model_params)
         else:
             query = self.get_query('sql/create_or_update_coop.sql', model_params)
         job = self.client.query(query)
@@ -119,8 +109,8 @@ class BigqueryService():
         """Deletes datasets and tables for a Retailer or CoopCampaign
 
         Args:
-            model_params (dict): Parameters from a Pydantic Model of a CoopCampaignConfig
-            or RetailerConfig.
+            model_params (dict): Parameters from a Pydantic Model of
+            a CoopCampaignConfig or RetailerConfig.
         """
 
         name = model_params.get('name')
@@ -130,3 +120,51 @@ class BigqueryService():
         else:
             table_id = f'{retailer}.{name}'
             self.client.delete_table(table_id)
+
+    def get_table_info(self, table_name):
+        """Gets information about a table creation date, last update
+        and latest partition. 
+
+        Args:
+            table_name (str): Name of the table.
+
+        Returns:
+            table_info (dict)
+        """
+
+        table_info = {}
+        table = self.client.get_table(table_name)
+        table_info['create_at'] = table.created
+        table_info['modified_at'] = table.modified
+        try:
+            partitions = self.client.list_partitions(table_name)
+            table_info['latest_partition'] = partitions[-1]
+        except Exception as error:
+            logging.info(
+                f'BigqueryService - get_table_info - Table \
+                {table_name} does not have partitions.')
+        return table_info
+
+    def ga_table_ready(self, model_params):
+        """Checks if the GA4 table from the day before is ready.
+
+        Args:
+            model_params (dict): Parameters from a Pydantic Model of
+            a CoopCampaignConfig or RetailerConfig.
+
+        Returns:
+            bigquery.Table: The most recent GA4 table.
+        """
+
+        table_name = model_params['bq_ga_table']
+        time_zone = model_params['time_zone']
+        date = datetime.strftime(datetime.now(ZoneInfo(time_zone)) - timedelta(1), '%Y%m%d')
+
+        try:
+            table = self.client.get_table(table_name.replace('*', date))
+        except NotFound as e:
+            logging.info(
+                f'BigqueryService - ga_table_ready - GA4 table \
+                {table_name} does not exists or it is not ready yet.')
+            return None
+        return table
