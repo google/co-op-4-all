@@ -112,7 +112,7 @@ class CoopService():
 
     def retailer_ready(self, retailer_config):
         """Checks if retailer tables are ready to be updated.
-        A retailer is ready if there was not an update for the 
+        A retailer is ready if there was not an update for the
         current day.
 
         Args:
@@ -122,12 +122,12 @@ class CoopService():
             bool: True if ready, False otherwise.
         """
 
-        last_update = retailer_config.get('bq_update_at')
-        time_zone = retailer_config.get('timze_zone')
+        last_update = retailer_config.get('bq_updated_at')
+        time_zone = retailer_config.get('time_zone')
         current_date = datetime.now(ZoneInfo(time_zone))
 
         return not last_update or last_update.day < current_date.day
-    
+
     def coop_campaign_ready(self, retailer_config, coop_config):
         """Checks if CoopCampaign table is ready to be updated.
         A CoopCampaing is ready if it was last modified before
@@ -170,7 +170,7 @@ class CoopService():
                     self.ds_client.update('RetailerConfig', retailer_config)
                     logging.info(
                         f'CoopService - update_all - Updated \
-                        {retailer_name} all_cliaks and all_transactions tables.')
+                        {retailer_name} all_clicks and all_transactions tables.')
                 else:
                     for coop_config in coop_configs:
 
