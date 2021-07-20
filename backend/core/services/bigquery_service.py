@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+import utils
 import os
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
-
 from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from jinja2 import Template
 
+LOGGER_NAME = 'coop4all.bigquery_service'
+logger = utils.get_coop_logger(LOGGER_NAME)
 
 class BigqueryService():
     def __init__(self):
@@ -123,7 +124,7 @@ class BigqueryService():
 
     def get_table_info(self, table_name):
         """Gets information about a table creation date, last update
-        and latest partition. 
+        and latest partition.
 
         Args:
             table_name (str): Name of the table.
@@ -140,7 +141,7 @@ class BigqueryService():
             partitions = self.client.list_partitions(table_name)
             table_info['latest_partition'] = partitions[-1]
         except Exception as error:
-            logging.info(
+            logger.info(
                 f'BigqueryService - get_table_info - Table \
                 {table_name} does not have partitions.')
         return table_info
@@ -163,7 +164,7 @@ class BigqueryService():
         try:
             table = self.client.get_table(table_name.replace('*', date))
         except NotFound as e:
-            logging.info(
+            logger.info(
                 f'BigqueryService - ga_table_ready - GA4 table \
                 {table_name} does not exists or it is not ready yet.')
             return None

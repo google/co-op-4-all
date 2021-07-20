@@ -13,12 +13,30 @@
 # limitations under the License.
 
 from datetime import date
-
 from flask.json import JSONEncoder
+import logging
+from google.cloud import logging as gcp_logging
 
+client = gcp_logging.Client()
+handler = client.get_default_handler()
 
 class CustomJSONEncoder(JSONEncoder):
     def default(self, obj):
         if isinstance(obj, date):
             return obj.isoformat()
         return super().default(obj)
+
+def get_coop_logger(name):
+    cloud_logger = logging.getLogger(name)
+    cloud_logger.setLevel(logging.INFO)
+    cloud_logger.addHandler(handler)
+    return cloud_logger
+
+def build_error(error):
+    message = error.message if hasattr(error, 'message') else str(error)
+    status_code = error.status_code if hasattr(error, 'status_code') else 500
+    error = {
+        'message': message,
+        'status_code': status_code
+    }
+    return error

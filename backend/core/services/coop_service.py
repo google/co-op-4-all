@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+import utils
 from datetime import date, datetime, timedelta
-import re
 from zoneinfo import ZoneInfo
-
 from .bigquery_service import BigqueryService
 from .datastore_service import DatastoreClient
 
+LOGGER_NAME = 'coop4all.coop_service'
+logger = utils.get_coop_logger(LOGGER_NAME)
 
 class CoopService():
     def __init__(self):
@@ -40,9 +40,13 @@ class CoopService():
 
         model_type = model.__class__.__name__
         model_params = model.dict(exclude_none=True)
+        name = model_params['name']
         config = self.ds_client.add(model_type, model_params)
         if config:
             self.bq_client.create(model_type, model_params)
+        else:
+            logger.warning(f'CoopService - Empty config {model_type}-{name}, \
+            BQ components were not created.')
         return config
 
     def update_config(self, model):
@@ -58,9 +62,13 @@ class CoopService():
 
         model_type = model.__class__.__name__
         model_params = model.dict(exclude_none=True)
+        name = model_params['name']
         config = self.ds_client.update(model_type, model_params)
         if config:
             self.bq_client.update(model_type, model_params)
+        else:
+            logger.warning(f'CoopService - Empty config {model_type}-{name}, \
+            BQ components were not updated.')
         return config
 
     def delete_config(self, model_type, name):
@@ -83,6 +91,9 @@ class CoopService():
                 self.ds_client.delete_multi(model_type='CoopCampaignConfig',
                                             name=name,
                                             field='retailer_name')
+        else:
+            logger.warning(f'CoopService - Empty config {model_type}-{name}, \
+            BQ components were not deleted.')
         return config
 
     def get_config(self, model_type, name):
@@ -108,6 +119,7 @@ class CoopService():
         Returns:
             config (lst): A list of entities.
         """
+
         return self.ds_client.get_all(model_type)
 
     def retailer_ready(self, retailer_config):
@@ -156,28 +168,40 @@ class CoopService():
 
         retailer_configs = self.ds_client.get_all('RetailerConfig')
         coop_configs = self.ds_client.get_all('CoopCampaignConfig')
-
+        logger.info('CoopService - Updating retailers if ready and not updated today...')
         for retailer_config in retailer_configs:
-
+            retailer_name = retailer_config.get('name')
+            bq_ga_table = retailer_config.get('bq_ga_table')
             if self.bq_client.ga_table_ready(retailer_config):
-                retailer_name = retailer_config.get('name')
                 time_zone = retailer_config.get('time_zone')
                 current_date = datetime.now(ZoneInfo(time_zone))
 
                 if self.retailer_ready(retailer_config):
+                    logger.info(f'CoopService - GA table {bq_ga_table} ready, \
+                    retailer ready and not updated today. Updating retailer {retailer_name}...')
                     self.bq_client.update('RetailerConfig', retailer_config)
                     retailer_config['bq_updated_at'] = current_date
                     self.ds_client.update('RetailerConfig', retailer_config)
-                    logging.info(
-                        f'CoopService - update_all - Updated \
+                    logger.info(
+                        f'CoopService - Updated retailer \
                         {retailer_name} all_clicks and all_transactions tables.')
                 else:
+                    logger.info(f'CoopService - Updating coop configs under retailer {retailer_name} \
+                        if ready and not updated today...')
                     for coop_config in coop_configs:
-
+                        coop_config_name = coop_config["name"]
                         if coop_config['retailer_name'] == retailer_name:
 
                             if self.coop_campaign_ready(retailer_config, coop_config):
+                                logger.info(f'CoopService - coop config ready and not updated today. \
+                                Updating coop config {coop_config_name}...')
                                 self.bq_client.update('CoopCampaignConfig', coop_config)
-                                logging.info(
-                                    f'CoopService - update_all - Updated \
-                                    {coop_config["name"]} table')
+                                logger.info(
+                                    f'CoopService - Updated coop config \
+                                    {coop_config_name} table.')
+                            else:
+                                logger.info(f'CoopService - Coop config {coop_config_name} was not updated since \
+                                    it was not ready or it was already updated.')
+            else:
+                logger.info(f'CoopService - Retailer {retailer_name} was not updated since \
+                the GA table {bq_ga_table} was not ready.')

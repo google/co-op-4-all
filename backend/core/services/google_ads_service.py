@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+import utils
 from core.services.bigquery_service import BigqueryService
+
+LOGGER_NAME = 'coop4all.google_ads_service'
+logger = utils.get_coop_logger(LOGGER_NAME)
 
 class GoogleAdsService():
     '''Google Ads service that retrieves conversions for a specific
@@ -58,6 +61,6 @@ class GoogleAdsService():
             csv = conversions.to_csv(sep=',', index=False, encoding='utf-8')
             return csv
         except Exception as error:
-            logging.error(f'GoogleAdsService - get_conversions - Error getting the conversions \
-             for the Co-Op Config { self.model_config["name"] } Error: { str(error) }')
+            logger.error(f'GoogleAdsService - Error getting the conversions \
+                for the Co-Op Config { self.model_config["name"] } Error: { str(error) }')
         return None

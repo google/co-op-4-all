@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask import abort, jsonify, request
+from flask import jsonify, request
+import utils
 from . import retailers
 from pydantic import ValidationError
 from core.models.configurations import RetailerConfig
@@ -20,59 +21,91 @@ from core.services.coop_service import CoopService
 from core.exceptions.coop_exception import CoopException
 
 coop_service = CoopService()
+LOGGER_NAME = 'coop4all.retailers_route'
+logger = utils.get_coop_logger(LOGGER_NAME)
 
 @retailers.route("/api/retailers", methods=["GET"])
 def list_retailers():
-    configs = coop_service.get_all('RetailerConfig')
-    if not configs:
-        raise CoopException('The retailers were not found.', status_code=404)
-    return jsonify(configs)
+    try:
+        configs = coop_service.get_all('RetailerConfig')
+        if not configs:
+            raise CoopException('The retailers were not found.', status_code=404)
+        return jsonify(configs)
+    except Exception as error:
+        error = utils.build_error(error)
+        logger.error('Retailers Route - %s' % (error['message']))
+        raise CoopException(error['message'], status_code=error['status_code'])
 
 @retailers.route("/api/retailers/<string:name>", methods=["GET"])
 def get_retailer(name):
-    config = coop_service.get_config('RetailerConfig', name)
-    if not config:
-        raise CoopException('The retailer was not found.', status_code=404)
-    return jsonify(config)
+    try:
+        config = coop_service.get_config('RetailerConfig', name)
+        if not config:
+            raise CoopException('The retailer was not found.', status_code=404)
+        return jsonify(config)
+    except Exception as error:
+        error = utils.build_error(error)
+        logger.error('Retailers Route - %s' % (error['message']))
+        raise CoopException(error['message'], status_code=error['status_code'])
 
 @retailers.route("/api/retailers", methods=["POST"])
 def add_retailer():
-    data = dict(request.json)
     try:
-        config = RetailerConfig(**data)
-    except ValidationError as error:
-        raise CoopException(f'Validation error: {error}', status_code=422)
-    new_config = coop_service.create_config(config)
-    if not new_config:
-        raise CoopException('The retailer could not be added. \
-        Please check the logs and try again.', status_code=409)
-    return "", 201
+        data = dict(request.json)
+        try:
+            config = RetailerConfig(**data)
+        except ValidationError as error:
+            raise CoopException(f'Validation error: {error}', status_code=422)
+        new_config = coop_service.create_config(config)
+        if not new_config:
+            raise CoopException('A retailer with the same name already exists. \
+                Please choose another name.', status_code=409)
+        return "", 201
+    except Exception as error:
+        error = utils.build_error(error)
+        logger.error('Retailers Route - %s' % (error['message']))
+        raise CoopException(error['message'], status_code=error['status_code'])
 
 @retailers.route("/api/retailers/<string:name>", methods=["PUT"])
 def update_retailer(name):
-    data = dict(request.json)
     try:
-        config = RetailerConfig(**data)
-    except ValidationError as error:
-        raise CoopException(f'Validation error: {error}', status_code=422)
-    updated_config = coop_service.update_config(config)
-    if not updated_config:
-        raise CoopException('The retailer could not be updated. \
-        Please check the logs and try again.', status_code=409)
-    return "", 200
+        data = dict(request.json)
+        try:
+            config = RetailerConfig(**data)
+        except ValidationError as error:
+            raise CoopException(f'Validation error: {error}', status_code=422)
+        updated_config = coop_service.update_config(config)
+        if not updated_config:
+            raise CoopException('The retailer could not be updated because it was not found. \
+            Please check the logs and try again.', status_code=404)
+        return "", 200
+    except Exception as error:
+        error = utils.build_error(error)
+        logger.error('Retailers Route - %s' % (error['message']))
+        raise CoopException(error['message'], status_code=error['status_code'])
 
 @retailers.route("/api/retailers/<string:name>", methods=["DELETE"])
 def delete_retailer(name):
-    config = coop_service.delete_config('RetailerConfig', name)
-    if not config:
-        raise CoopException('The retailer could not be deleted. \
-        Please check the logs try again.', status_code=409)
-    return "", 204
+    try:
+        config = coop_service.delete_config('RetailerConfig', name)
+        if not config:
+            raise CoopException('The retailer could not be deleted. \
+            Please check the logs try again.', status_code=409)
+        return "", 204
+    except Exception as error:
+        error = utils.build_error(error)
+        logger.error('Retailers Route - %s' % (error['message']))
+        raise CoopException(error['message'], status_code=error['status_code'])
 
 @retailers.route("/api/retailers/update_all_configs", methods=["POST"])
 def update_all_configs():
-    coop_service.update_all()
-    return "", 200
+    try:
+        coop_service.update_all()
+        return "", 200
+    except Exception as error:
+        error = utils.build_error(error)
+        logger.error('Retailers Route - %s' % (error['message']))
+        raise CoopException(error['message'], status_code=error['status_code'])
 
 # Exception Handler
 @retailers.errorhandler(CoopException)

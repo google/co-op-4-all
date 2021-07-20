@@ -5,3 +5,4 @@ google-cloud-bigquery==2.20.0
 Jinja2==3.0.1
 pandas==1.2.5
 pyarrow==4.0.1
+google-cloud-logging==2.5.0
