@@ -19,33 +19,19 @@
 *
 ***************************************************************************/
 
-import { Component } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { ApiService } from '../../../services/api.service';
 
-@Component({
-  selector: 'app-navbar',
-  templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
-})
-export class NavbarComponent {
+@Injectable()
+export class LogsService extends ApiService {
 
-  links: Array<any>
-  activeLink: string
+    private url = `${this.getHost()}/logs`;
 
-  constructor() {
-   this.links = [{
-      link:'Retailers',
-      route:'retailers',
-      icon: 'store'
-    },{
-      link:'Co-Op Campaign Configurations',
-      route: 'co-op-configurations',
-      icon: 'settings'
-    },{
-      link:'Execution Logs',
-      route: 'logs',
-      icon: 'notes'
-    }];
-    this.activeLink = this.links[0].link;
-  }
+    getLogs() {
+        this.removeContentTypeHeader();
+        return this.http.get(this.url, this.options)
+            .toPromise()
+            .catch(this.handleError);
+    }
 
 }

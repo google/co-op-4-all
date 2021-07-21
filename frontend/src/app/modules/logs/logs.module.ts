@@ -19,33 +19,27 @@
 *
 ***************************************************************************/
 
-import { Component } from '@angular/core';
+import { NgModule } from '@angular/core';
+import { SharedModule } from '../shared/shared.module';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { LogsComponent } from './logs.component';
+import { LogsService } from './services/logs.service';
 
-@Component({
-  selector: 'app-navbar',
-  templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
+@NgModule({
+  declarations: [
+    LogsComponent
+  ],
+  imports: [
+    SharedModule,
+    RouterModule,
+    CommonModule
+  ],
+  exports: [
+    LogsComponent
+  ],
+  providers: [
+    LogsService
+  ]
 })
-export class NavbarComponent {
-
-  links: Array<any>
-  activeLink: string
-
-  constructor() {
-   this.links = [{
-      link:'Retailers',
-      route:'retailers',
-      icon: 'store'
-    },{
-      link:'Co-Op Campaign Configurations',
-      route: 'co-op-configurations',
-      icon: 'settings'
-    },{
-      link:'Execution Logs',
-      route: 'logs',
-      icon: 'notes'
-    }];
-    this.activeLink = this.links[0].link;
-  }
-
-}
+export class LogsModule { }

@@ -1,0 +1,22 @@
+.update-button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin: 15px 0px 0px 0px;
+}
+
+.table-container {
+    margin: 30px 0px 30px 0px;
+}
+
+table {
+    width: 100%;
+}
+
+td button {
+    margin-left: 10px;
+}
+
+.filter {
+    font-size: 14px;
+    width: 30%;
+}

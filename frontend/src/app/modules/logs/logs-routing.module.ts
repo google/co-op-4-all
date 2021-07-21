@@ -19,33 +19,18 @@
 *
 ***************************************************************************/
 
-import { Component } from '@angular/core';
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { LogsComponent } from './logs.component';
 
-@Component({
-  selector: 'app-navbar',
-  templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
+const routes: Routes = [{
+  path: 'logs',
+  component: LogsComponent,
+  pathMatch: 'full'
+}];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
 })
-export class NavbarComponent {
-
-  links: Array<any>
-  activeLink: string
-
-  constructor() {
-   this.links = [{
-      link:'Retailers',
-      route:'retailers',
-      icon: 'store'
-    },{
-      link:'Co-Op Campaign Configurations',
-      route: 'co-op-configurations',
-      icon: 'settings'
-    },{
-      link:'Execution Logs',
-      route: 'logs',
-      icon: 'notes'
-    }];
-    this.activeLink = this.links[0].link;
-  }
-
-}
+export class LogsRoutingModule { }

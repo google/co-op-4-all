@@ -31,13 +31,15 @@ import { SharedModule } from './modules/shared/shared.module';
 import { RetailersModule } from './modules/retailers/retailers.module';
 import { RetailersRoutingModule } from './modules/retailers/retailers-routing.module';
 import { CoopConfigurationsModule } from './modules/co-op-configurations/co-op-configurations.module';
-import { CoopConfigurationsRoutingModule } from './modules/co-op-configurations/co-op-configurations.routing.module'
+import { CoopConfigurationsRoutingModule } from './modules/co-op-configurations/co-op-configurations.routing.module';
+import { LogsModule } from './modules/logs/logs.module'
+import { LogsRoutingModule } from './modules/logs/logs-routing.module';
 
 @NgModule({
   declarations: [
     AppComponent,
     ToolbarComponent,
-    NavbarComponent,
+    NavbarComponent
   ],
   imports: [
     BrowserModule,
@@ -48,7 +50,9 @@ import { CoopConfigurationsRoutingModule } from './modules/co-op-configurations/
     RetailersModule,
     RetailersRoutingModule,
     CoopConfigurationsModule,
-    CoopConfigurationsRoutingModule
+    CoopConfigurationsRoutingModule,
+    LogsModule,
+    LogsRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]
