@@ -12,9 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import utils
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
+
+import utils
+from core.exceptions.coop_exception import CoopException
+
 from .bigquery_service import BigqueryService
 from .datastore_service import DatastoreClient
 
@@ -39,6 +42,13 @@ class CoopService():
         """
 
         model_type = model.__class__.__name__
+        if model_type == 'RetailerConfig':
+            bq_ga_table = model.bq_ga_table
+            table = self.bq_client.get_table(bq_ga_table)
+            if not table:
+                raise CoopException(f'GA4 Table not found at {bq_ga_table}. \
+                    Please check if table name is correct.', status_code=404)
+
         model_params = model.dict(exclude_none=True)
         name = model_params['name']
         config = self.ds_client.add(model_type, model_params)
@@ -153,14 +163,36 @@ class CoopService():
         """
 
         retailer_name = retailer_config.get('name')
-        clicks_table = f'{retailer_name}.all_clicks'
-        clicks_table_info = self.bq_client.get_table_info(clicks_table)
-        click_table_modified_at = clicks_table_info.get('modified_at')
-        coop_table = f'{retailer_name}.{coop_config["name"]}'
-        coop_table_info = self.bq_client.get_table_info(coop_table)
-        coop_modified_at = coop_table_info.get('modified_at')
+        clicks_table_reference = f'{retailer_name}.all_clicks'
+        clicks_table = self.bq_client.get_table(clicks_table_reference)
+        click_table_modified_at = clicks_table.modified
+        coop_table_reference = f'{retailer_name}.{coop_config["name"]}'
+        coop_table = self.bq_client.get_table(coop_table_reference)
+        coop_modified_at = coop_table.modified
 
         return coop_modified_at < click_table_modified_at
+
+    def ga_table_ready(self, retailer_config):
+        """Checks if the GA4 table from the day before is ready.
+
+        Args:
+            model_params (dict): Parameters from a Pydantic Model of
+            a CoopCampaignConfig or RetailerConfig.
+
+        Returns:
+            bigquery.Table: The most recent GA4 table. Returns None
+            if table is not ready.
+        """
+        
+        table_name = retailer_config.get('bq_ga_table')
+        time_zone = retailer_config.get('time_zone')
+        date = datetime.strftime(datetime.now(ZoneInfo(time_zone)) - timedelta(1), '%Y%m%d')
+        table = self.bq_client.get_table(table_name.replace('*', date))
+        if not table:
+            logger.info(
+                f'CoopService - ga_table_ready - GA4 table \
+                {table_name} does not exists or it is not ready.')
+        return table
 
     def update_all(self):
         """Checks each retailer and campaign and updates if needed.
