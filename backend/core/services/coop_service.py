@@ -148,7 +148,7 @@ class CoopService():
         time_zone = retailer_config.get('time_zone')
         current_date = datetime.now(ZoneInfo(time_zone))
 
-        return not last_update or last_update.day < current_date.day
+        return not last_update or last_update.date() < current_date.date()
 
     def coop_campaign_ready(self, retailer_config, coop_config):
         """Checks if CoopCampaign table is ready to be updated.
@@ -204,11 +204,12 @@ class CoopService():
         for retailer_config in retailer_configs:
             retailer_name = retailer_config.get('name')
             bq_ga_table = retailer_config.get('bq_ga_table')
-            if self.bq_client.ga_table_ready(retailer_config):
+            if self.ga_table_ready(retailer_config):
                 time_zone = retailer_config.get('time_zone')
                 current_date = datetime.now(ZoneInfo(time_zone))
+                retailer_is_active = retailer_config.get('is_active')
 
-                if self.retailer_ready(retailer_config):
+                if self.retailer_ready(retailer_config) and retailer_is_active:
                     logger.info(f'CoopService - GA table {bq_ga_table} ready, \
                     retailer ready and not updated today. Updating retailer {retailer_name}...')
                     self.bq_client.update('RetailerConfig', retailer_config)
@@ -221,8 +222,9 @@ class CoopService():
                     logger.info(f'CoopService - Updating coop configs under retailer {retailer_name} \
                         if ready and not updated today...')
                     for coop_config in coop_configs:
-                        coop_config_name = coop_config["name"]
-                        if coop_config['retailer_name'] == retailer_name:
+                        coop_config_name = coop_config.get('name')
+                        coop_config_is_active = coop_config.get('is_active')
+                        if coop_config['retailer_name'] == retailer_name and coop_config_is_active:
 
                             if self.coop_campaign_ready(retailer_config, coop_config):
                                 logger.info(f'CoopService - coop config ready and not updated today. \
@@ -237,3 +239,4 @@ class CoopService():
             else:
                 logger.info(f'CoopService - Retailer {retailer_name} was not updated since \
                 the GA table {bq_ga_table} was not ready.')
+
