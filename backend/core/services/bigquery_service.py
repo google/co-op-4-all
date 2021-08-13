@@ -14,8 +14,6 @@
 
 import utils
 import os
-from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
 from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from jinja2 import Template
@@ -122,50 +120,19 @@ class BigqueryService():
             table_id = f'{retailer}.{name}'
             self.client.delete_table(table_id)
 
-    def get_table_info(self, table_name):
-        """Gets information about a table creation date, last update
-        and latest partition.
+    def get_table(self, table_name):
+        """Gets a table by name.
 
         Args:
             table_name (str): Name of the table.
 
         Returns:
-            table_info (dict)
+            bigquery.Table: Bigquery table object. Returns None
+            if table was not found.
         """
 
-        table_info = {}
-        table = self.client.get_table(table_name)
-        table_info['create_at'] = table.created
-        table_info['modified_at'] = table.modified
         try:
-            partitions = self.client.list_partitions(table_name)
-            table_info['latest_partition'] = partitions[-1]
-        except Exception as error:
-            logger.info(
-                f'BigqueryService - get_table_info - Table \
-                {table_name} does not have partitions.')
-        return table_info
-
-    def ga_table_ready(self, model_params):
-        """Checks if the GA4 table from the day before is ready.
-
-        Args:
-            model_params (dict): Parameters from a Pydantic Model of
-            a CoopCampaignConfig or RetailerConfig.
-
-        Returns:
-            bigquery.Table: The most recent GA4 table.
-        """
-
-        table_name = model_params['bq_ga_table']
-        time_zone = model_params['time_zone']
-        date = datetime.strftime(datetime.now(ZoneInfo(time_zone)) - timedelta(1), '%Y%m%d')
-
-        try:
-            table = self.client.get_table(table_name.replace('*', date))
-        except NotFound as e:
-            logger.info(
-                f'BigqueryService - ga_table_ready - GA4 table \
-                {table_name} does not exists or it is not ready yet.')
+            table = self.client.get_table(table_name)
+        except NotFound as error:
             return None
         return table
