@@ -28,7 +28,6 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 import { NgModule } from '@angular/core';
 
@@ -48,8 +47,7 @@ import { NgModule } from '@angular/core';
     MatPaginatorModule,
     MatSortModule,
     MatSelectModule,
-    MatProgressSpinnerModule,
-    NgxMatSelectSearchModule
+    MatProgressSpinnerModule
   ],
   declarations: [
 
