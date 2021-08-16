@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask import jsonify, request, Response
+from flask import jsonify, request
 import utils
 from . import coop_configurations
 from pydantic import ValidationError
 from core.models.configurations import CoopCampaignConfig
-from core.services.google_ads_service import GoogleAdsService
 from core.services.coop_service import CoopService
 from core.exceptions.coop_exception import CoopException
 
@@ -93,51 +92,6 @@ def delete_co_op_campaign(name):
             raise CoopException('The Co-Op config could not be deleted. \
             Please check the logs and try again.', status_code=409)
         return "", 204
-    except Exception as error:
-        error = utils.build_error(error)
-        logger.error('Co-Op Configs Route - %s' % (error['message']))
-        raise CoopException(error['message'], status_code=error['status_code'])
-
-@coop_configurations.route("/api/co_op_campaigns/get_google_ads_conversions/<string:name>", methods=["GET"])
-def get_google_ads_conversions(name):
-    '''Endpoint to retrieve the Google Ads conversions for
-    the specified Co-Op Configuration.
-
-        Args:
-        name (str): The Co-Op Configuration name.
-
-        Returns:
-        conversions (str): a list of Google Ads conversions in csv format.
-    '''
-    try:
-        coop_config = coop_service.get_config('CoopCampaignConfig', name)
-        retailer = coop_service.get_config('RetailerConfig', coop_config['retailer_name'])
-        if not retailer:
-            raise CoopException('The retailer was not found.', status_code=404)
-        if not coop_config:
-            raise CoopException('The Co-Op config was not found.', status_code=404)
-        coop_name = coop_config["name"]
-        if coop_config['is_active']:
-            # Creating a dict for the BqService params
-            coop_config_params = dict(coop_config)
-            coop_config_params['currency'] = retailer['currency']
-            coop_config_params['time_zone'] = retailer['time_zone']
-            google_ads_service = GoogleAdsService(coop_config_params)
-            conversions = google_ads_service.get_conversions()
-            if not conversions:
-                raise CoopException(f'There was a problem getting \
-                the conversions for the Co-Op Config {coop_name}.', status_code=500)
-            response = Response(response=conversions,
-                                status=200, mimetype="text/csv")
-            response.headers["Content-Type"] = "text/csv"
-            logger.info(f'Co-Op Configs Route - Conversions for the Co-Op Config {coop_name} \
-                were sent successfully!')
-            return response
-        else:
-            logger.info(
-                f'Co-Op Configs Route - The Co-Op Config {coop_name} is inactive. \
-                Conversions were not sent to Google Ads.')
-            return '', 204
     except Exception as error:
         error = utils.build_error(error)
         logger.error('Co-Op Configs Route - %s' % (error['message']))

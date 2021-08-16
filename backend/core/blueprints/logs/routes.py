@@ -12,19 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask import Flask
-from utils import CustomJSONEncoder
+from flask import jsonify
+import utils
+from . import logs
+from core.exceptions.coop_exception import CoopException
 
-app = Flask(__name__)
-app.json_encoder = CustomJSONEncoder
+LOGGER_NAME = 'coop4all.logs_route'
+logger = utils.get_coop_logger(LOGGER_NAME)
 
-# Import Blueprints
-from .blueprints.retailers import retailers
-from .blueprints.coop_configurations import coop_configurations
-from .blueprints.logs import logs
-from .blueprints.scheduler import scheduler
+@logs.route("/api/logs", methods=["GET"])
+def list_logs():
+    pass
 
-app.register_blueprint(retailers)
-app.register_blueprint(coop_configurations)
-app.register_blueprint(logs)
-app.register_blueprint(scheduler)
+# Exception Handler
+@logs.errorhandler(CoopException)
+def handle_coop_exception(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response

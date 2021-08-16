@@ -32,7 +32,7 @@ import { RetailersModule } from './modules/retailers/retailers.module';
 import { RetailersRoutingModule } from './modules/retailers/retailers-routing.module';
 import { CoopConfigurationsModule } from './modules/co-op-configurations/co-op-configurations.module';
 import { CoopConfigurationsRoutingModule } from './modules/co-op-configurations/co-op-configurations.routing.module';
-import { LogsModule } from './modules/logs/logs.module'
+import { LogsModule } from './modules/logs/logs.module';
 import { LogsRoutingModule } from './modules/logs/logs-routing.module';
 
 @NgModule({

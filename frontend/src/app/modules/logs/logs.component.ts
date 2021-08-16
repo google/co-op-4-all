@@ -35,11 +35,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class LogsComponent implements OnInit {
 
   displayedColumns: Array<string>;
-  logs: Array<Log>
-  dataSource: MatTableDataSource<Log>
+  logs: Array<Log>;
+  dataSource: MatTableDataSource<Log>;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-  showSpinner = false
+  showSpinner = false;
 
   constructor(private logsService: LogsService,
     private _snackBar: MatSnackBar) {

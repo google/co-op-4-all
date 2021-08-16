@@ -97,16 +97,6 @@ def delete_retailer(name):
         logger.error('Retailers Route - %s' % (error['message']))
         raise CoopException(error['message'], status_code=error['status_code'])
 
-@retailers.route("/api/retailers/update_all_configs", methods=["POST"])
-def update_all_configs():
-    try:
-        coop_service.update_all()
-        return "", 200
-    except Exception as error:
-        error = utils.build_error(error)
-        logger.error('Retailers Route - %s' % (error['message']))
-        raise CoopException(error['message'], status_code=error['status_code'])
-
 # Exception Handler
 @retailers.errorhandler(CoopException)
 def handle_coop_exception(error):

@@ -12,19 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask import Flask
-from utils import CustomJSONEncoder
+from flask import Blueprint
 
-app = Flask(__name__)
-app.json_encoder = CustomJSONEncoder
-
-# Import Blueprints
-from .blueprints.retailers import retailers
-from .blueprints.coop_configurations import coop_configurations
-from .blueprints.logs import logs
-from .blueprints.scheduler import scheduler
-
-app.register_blueprint(retailers)
-app.register_blueprint(coop_configurations)
-app.register_blueprint(logs)
-app.register_blueprint(scheduler)
+# Create Logs Blueprint
+logs = Blueprint('logs', __name__)
+from . import routes
