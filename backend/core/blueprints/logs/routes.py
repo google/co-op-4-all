@@ -16,13 +16,27 @@ from flask import jsonify
 import utils
 from . import logs
 from core.exceptions.coop_exception import CoopException
+from google.cloud import logging
+from datetime import datetime, timedelta
 
 LOGGER_NAME = 'coop4all.logs_route'
 logger = utils.get_coop_logger(LOGGER_NAME)
+client = logging.Client()
 
 @logs.route("/api/logs", methods=["GET"])
 def list_logs():
-    pass
+    filter_date = datetime.utcnow() - timedelta(days=1)
+    filter_date = filter_date.isoformat(timespec='seconds')
+    filter_string = f'timestamp >= "{filter_date}"'
+    coop_logs = client.logger('python')
+
+    logs = []
+    for entry in coop_logs.list_entries(filter_=filter_string):
+        logs.append({
+            'date': entry.timestamp,
+            'message': entry.payload.get('message')
+        })
+    return jsonify(logs), 200
 
 # Exception Handler
 @logs.errorhandler(CoopException)

@@ -61,6 +61,6 @@ class GoogleAdsService():
             csv = conversions.to_csv(sep=',', index=False, encoding='utf-8')
             return csv
         except Exception as error:
-            logger.error(f'GoogleAdsService - Error getting the conversions \
-                for the Co-Op Config { self.model_config["name"] } Error: { str(error) }')
+            logger.error(f'GoogleAdsService - Error getting the conversions' \
+                f'for the Co-Op Config { self.model_config["name"] } Error: { str(error) }')
         return None

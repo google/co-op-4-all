@@ -46,8 +46,8 @@ class CoopService():
             bq_ga_table = model.bq_ga_table
             table = self.bq_client.get_table(bq_ga_table)
             if not table:
-                raise CoopException(f'GA4 Table not found at {bq_ga_table}. \
-                    Please check if table name is correct.', status_code=404)
+                raise CoopException(f'GA4 Table not found at {bq_ga_table}.' \
+                    'Please check if table name is correct.', status_code=404)
 
         model_params = model.dict(exclude_none=True)
         name = model_params['name']
@@ -55,8 +55,8 @@ class CoopService():
         if config:
             self.bq_client.create(model_type, model_params)
         else:
-            logger.warning(f'CoopService - Empty config {model_type}-{name}, \
-            BQ components were not created.')
+            logger.warning(f'CoopService - Empty config {model_type}-{name},' \
+                'BQ components were not created.')
         return config
 
     def update_config(self, model):
@@ -77,8 +77,8 @@ class CoopService():
         if config:
             self.bq_client.update(model_type, model_params)
         else:
-            logger.warning(f'CoopService - Empty config {model_type}-{name}, \
-            BQ components were not updated.')
+            logger.warning(f'CoopService - Empty config {model_type}-{name},' \
+                'BQ components were not updated.')
         return config
 
     def delete_config(self, model_type, name):
@@ -102,8 +102,8 @@ class CoopService():
                                             name=name,
                                             field='retailer_name')
         else:
-            logger.warning(f'CoopService - Empty config {model_type}-{name}, \
-            BQ components were not deleted.')
+            logger.warning(f'CoopService - Empty config {model_type}-{name},' \
+                'BQ components were not deleted.')
         return config
 
     def get_config(self, model_type, name):
@@ -190,8 +190,8 @@ class CoopService():
         table = self.bq_client.get_table(table_name.replace('*', date))
         if not table:
             logger.info(
-                f'CoopService - ga_table_ready - GA4 table \
-                {table_name} does not exists or it is not ready.')
+                f'CoopService - ga_table_ready - GA4 table' \
+                f'{table_name} does not exists or it is not ready.')
         return table
 
     def update_all(self):
@@ -210,33 +210,33 @@ class CoopService():
                 retailer_is_active = retailer_config.get('is_active')
 
                 if self.retailer_ready(retailer_config) and retailer_is_active:
-                    logger.info(f'CoopService - GA table {bq_ga_table} ready, \
-                    retailer ready and not updated today. Updating retailer {retailer_name}...')
+                    logger.info(f'CoopService - GA table {bq_ga_table} ready,' \
+                        f'retailer ready and not updated today. Updating retailer {retailer_name}...')
                     self.bq_client.update('RetailerConfig', retailer_config)
                     retailer_config['bq_updated_at'] = current_date
                     self.ds_client.update('RetailerConfig', retailer_config)
                     logger.info(
-                        f'CoopService - Updated retailer \
-                        {retailer_name} all_clicks and all_transactions tables.')
+                        f'CoopService - Updated retailer' \
+                        f'{retailer_name} all_clicks and all_transactions tables.')
                 else:
-                    logger.info(f'CoopService - Updating coop configs under retailer {retailer_name} \
-                        if ready and not updated today...')
+                    logger.info(f'CoopService - Updating coop configs under retailer {retailer_name}' \
+                        'if ready and not updated today...')
                     for coop_config in coop_configs:
                         coop_config_name = coop_config.get('name')
                         coop_config_is_active = coop_config.get('is_active')
                         if coop_config['retailer_name'] == retailer_name and coop_config_is_active:
 
                             if self.coop_campaign_ready(retailer_config, coop_config):
-                                logger.info(f'CoopService - coop config ready and not updated today. \
-                                Updating coop config {coop_config_name}...')
+                                logger.info(f'CoopService - coop config ready and not updated today.' \
+                                    f'Updating coop config {coop_config_name}...')
                                 self.bq_client.update('CoopCampaignConfig', coop_config)
                                 logger.info(
-                                    f'CoopService - Updated coop config \
-                                    {coop_config_name} table.')
+                                    f'CoopService - Updated coop config' \
+                                    f'{coop_config_name} table.')
                             else:
-                                logger.info(f'CoopService - Coop config {coop_config_name} was not updated since \
-                                    it was not ready or it was already updated.')
+                                logger.info(f'CoopService - Coop config {coop_config_name} was not updated since' \
+                                    'it was not ready or it was already updated.')
             else:
-                logger.info(f'CoopService - Retailer {retailer_name} was not updated since \
-                the GA table {bq_ga_table} was not ready.')
+                logger.info(f'CoopService - Retailer {retailer_name} was not updated since' \
+                    f'the GA table {bq_ga_table} was not ready.')
 
