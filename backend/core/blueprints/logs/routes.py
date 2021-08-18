@@ -30,8 +30,15 @@ def list_logs():
     filter_string = f'timestamp >= "{filter_date}"'
     coop_logs = client.logger('python')
 
+    try:
+        entries = coop_logs.list_entries(filter_=filter_string)
+    except Exception as error:
+        error = utils.build_error(error)
+        logger.error('Logs Route - %s' % (error['message']))
+        raise CoopException(error['message'], status_code=error['status_code'])
+
     logs = []
-    for entry in coop_logs.list_entries(filter_=filter_string):
+    for entry in entries:
         logs.append({
             'date': entry.timestamp,
             'message': entry.payload.get('message')
