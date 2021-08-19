@@ -61,18 +61,18 @@ def get_google_ads_conversions(name):
             google_ads_service = GoogleAdsService(coop_config_params)
             conversions = google_ads_service.get_conversions()
             if not conversions:
-                raise CoopException(f'There was a problem getting \
-                the conversions for the Co-Op Config {coop_name}.', status_code=500)
+                raise CoopException(f'There was a problem getting' \
+                f'the conversions for the Co-Op Config {coop_name}.', status_code=500)
             response = Response(response=conversions,
                                 status=200, mimetype="text/csv")
             response.headers["Content-Type"] = "text/csv"
-            logger.info(f'Scheduler Configs Route - Conversions for the Co-Op Config {coop_name} \
-                were sent successfully!')
+            logger.info(f'Scheduler Configs Route - Conversions for the Co-Op Config {coop_name}' \
+                'were sent successfully!')
             return response
         else:
             logger.info(
-                f'Scheduler Configs Route - The Co-Op Config {coop_name} is inactive. \
-                Conversions were not sent to Google Ads.')
+                f'Scheduler Configs Route - The Co-Op Config {coop_name} is inactive.' \
+                'Conversions were not sent to Google Ads.')
             return '', 204
     except Exception as error:
         error = utils.build_error(error)
