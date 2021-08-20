@@ -61,22 +61,6 @@ export class LogsComponent implements OnInit {
 
   getLogs() {
     this.showSpinner = true;
-    this.logs = [{
-      'name' : 'Log1',
-      'date': '10-12-2021',
-      'error': 'The retailer was not ready'
-    },{
-      'name' : 'Log2',
-      'date': '10-12-2021',
-      'error': 'The coop config was not ready'
-    },{
-      'name' : 'Log3',
-      'date': '09-05-2021',
-      'error': 'The retailer was not ready'
-    }];
-    this.dataSource.data = this.logs;
-    this.showSpinner = false;
-    /* TODO implement endpoint
     this.logsService.getLogs().then(logs => {
       this.logs = logs as Array<Log>;
       this.dataSource.data = this.logs;
@@ -85,11 +69,11 @@ export class LogsComponent implements OnInit {
       console.error(error);
       this.openSnackBar(`ERROR: ${error}`);
       this.showSpinner = false;
-    });*/
+    });
   }
 
   buildColumns() {
-    return ['name', 'date', 'error']
+    return ['date', 'message']
   }
 
   applyFilter(event: Event) {

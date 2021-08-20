@@ -21,6 +21,5 @@
 
 export interface Log {
     date: string;
-    name: string;
-    error: string;
+    message: string;
 }

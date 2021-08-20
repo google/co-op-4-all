@@ -47,9 +47,10 @@
         <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let element">
-                <button mat-raised-button color="primary" [routerLink]="['/retailers', element.name, 'edit']">
+                <!-- COMMENTED OUT FOR NOW - NOT SUPPORTING RETAILER EDITS
+                button mat-raised-button color="primary" [routerLink]="['/retailers', element.name, 'edit']">
                     <mat-icon>edit</mat-icon>
-                </button>
+                </button-->
                 <button mat-raised-button color="accent" (click)="deleteRetailer(element.name)">
                     <mat-icon>remove</mat-icon>
                 </button>
