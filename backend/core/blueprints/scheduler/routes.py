@@ -23,7 +23,7 @@ coop_service = CoopService()
 LOGGER_NAME = 'coop4all.scheduler_route'
 logger = utils.get_coop_logger(LOGGER_NAME)
 
-@scheduler.route("/api/scheduler/update_all_configs", methods=["POST"])
+@scheduler.route("/api/scheduler/update_all_configs", methods=["GET"])
 def update_all_configs():
     try:
         coop_service.update_all()
