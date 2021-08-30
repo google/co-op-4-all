@@ -1,0 +1,4 @@
+cron:
+- description: "Run the update_all_configs task."
+  url: /api/scheduler/update_all_configs
+  schedule: every 1 hours
