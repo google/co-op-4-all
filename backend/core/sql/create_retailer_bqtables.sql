@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS
     user_pseudo_id STRING,
     transaction_date DATE,
     transaction_datetime DATETIME,
+    transaction_timestamp INTEGER,
     transaction_id STRING,
     session_number INT64,
     item_id STRING,
@@ -45,6 +46,7 @@ SELECT DISTINCT
   user_pseudo_id,
   PARSE_DATE('%Y%m%d', event_date) AS transaction_date,
   DATETIME(TIMESTAMP_MICROS(event_timestamp),'{{ params['time_zone'] }}') AS transaction_datetime,
+  event_timestamp as transaction_timestamp,
   (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'transaction_id') AS transaction_id,
   (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_number') AS session_number,
   it.item_id,
@@ -73,7 +75,7 @@ CREATE TABLE IF NOT EXISTS
 PARTITION BY
   click_date
 OPTIONS
-  (partition_expiration_days={{ params['coop_max_backfill'] }} +30);
+  (partition_expiration_days={{ params['coop_max_backfill'] }} + 30);
 
 INSERT
   {{ params['name'] }}.all_clicks

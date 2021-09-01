@@ -17,7 +17,6 @@ import utils
 from . import scheduler
 from core.exceptions.coop_exception import CoopException
 from core.services.coop_service import CoopService
-from core.services.google_ads_service import GoogleAdsService
 
 coop_service = CoopService()
 LOGGER_NAME = 'coop4all.scheduler_route'
@@ -25,6 +24,10 @@ logger = utils.get_coop_logger(LOGGER_NAME)
 
 @scheduler.route("/api/scheduler/update_all_configs", methods=["GET"])
 def update_all_configs():
+    '''Endpoint to update all the Co-Op Configurations by checking if
+    the Google Analytics data is available.
+    '''
+
     try:
         coop_service.update_all()
         return "", 200
@@ -45,38 +48,34 @@ def get_google_ads_conversions(name):
         conversions (str): a list of Google Ads conversions in csv format.
     '''
     try:
-        #TODO: Move this logic to the CoopService
-        coop_config = coop_service.get_config('CoopCampaignConfig', name)
-        retailer = coop_service.get_config('RetailerConfig', coop_config['retailer_name'])
-        if not retailer:
-            raise CoopException('The retailer was not found.', status_code=404)
-        if not coop_config:
-            raise CoopException('The Co-Op config was not found.', status_code=404)
-        coop_name = coop_config["name"]
-        if coop_config['is_active']:
-            # Creating a dict for the BqService params
-            coop_config_params = dict(coop_config)
-            coop_config_params['currency'] = retailer['currency']
-            coop_config_params['time_zone'] = retailer['time_zone']
-            google_ads_service = GoogleAdsService(coop_config_params)
-            conversions = google_ads_service.get_conversions()
-            if not conversions:
-                raise CoopException(f'There was a problem getting' \
-                f'the conversions for the Co-Op Config {coop_name}.', status_code=500)
+        conversions = coop_service.get_google_ads_conversions(name)
+        if conversions:
             response = Response(response=conversions,
                                 status=200, mimetype="text/csv")
             response.headers["Content-Type"] = "text/csv"
-            logger.info(f'Scheduler Configs Route - Conversions for the Co-Op Config {coop_name}' \
-                'were sent successfully!')
+            logger.info(f'Scheduler Configs Route - get_google_ads_conversions - ' \
+            f'Conversions for the Co-Op Config {name} were sent successfully to Google Ads!')
             return response
         else:
-            logger.info(
-                f'Scheduler Configs Route - The Co-Op Config {coop_name} is inactive.' \
-                'Conversions were not sent to Google Ads.')
-            return '', 204
+            logger.log(f'Scheduler Configs Route - get_google_ads_conversions - ' \
+            f'Conversions not found for the Co-Op Config {name}')
+            return f'Conversions not found for the Co-Op Config {name}', 204
     except Exception as error:
         error = utils.build_error(error)
         logger.error('Scheduler Configs Route - %s' % (error['message']))
+        raise CoopException(error['message'], status_code=error['status_code'])
+
+@scheduler.route("/api/scheduler/push_dv360_cm_conversions", methods=["GET"])
+def push_dv360_cm_conversions():
+    '''Endpoint to push the DV360/CM conversions for all the Co-Op Configurations'''
+
+    try:
+        coop_service.push_dv360_cm_conversions()
+        return f'The conversions for all the Co-Op Configs were processed! ' \
+        f'Please check the logs in case there is any error.', 200
+    except Exception as error:
+        error = utils.build_error(error)
+        logger.error('Scheduler Route - %s' % (error['message']))
         raise CoopException(error['message'], status_code=error['status_code'])
 
 # Exception Handler

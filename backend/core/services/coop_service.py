@@ -14,17 +14,26 @@
 
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
-
 import utils
 from core.exceptions.coop_exception import CoopException
-
 from .bigquery_service import BigqueryService
 from .datastore_service import DatastoreClient
+from .destinations.google_ads_service import GoogleAdsService
+from .destinations.dv360_cm_service import DV360CMService
 
 LOGGER_NAME = 'coop4all.coop_service'
 logger = utils.get_coop_logger(LOGGER_NAME)
 
 class CoopService():
+    '''
+    Service that handles all the Co-Op config operations such as create, update, get,
+    delete and conversions pull/push
+
+        Attributes:
+            bq_client: A service to handle all the BigQuery operations.
+            ds_client: A service to handle all the Datastore operations.
+    '''
+
     def __init__(self):
         self.bq_client = BigqueryService()
         self.ds_client = DatastoreClient()
@@ -183,7 +192,7 @@ class CoopService():
             bigquery.Table: The most recent GA4 table. Returns None
             if table is not ready.
         """
-        
+
         table_name = retailer_config.get('bq_ga_table')
         time_zone = retailer_config.get('time_zone')
         date = datetime.strftime(datetime.now(ZoneInfo(time_zone)) - timedelta(1), '%Y%m%d')
@@ -240,3 +249,66 @@ class CoopService():
                 logger.info(f'CoopService - Retailer {retailer_name} was not updated since' \
                     f'the GA table {bq_ga_table} was not ready.')
 
+    def get_google_ads_conversions(self, name):
+        '''
+        Endpoint to retrieve the Google Ads conversions for the specified
+        Co-Op Configuration.
+
+            Args:
+            name (str): The Co-Op Configuration name.
+
+            Returns:
+            conversions (str): a list of Google Ads conversions in csv format.
+        '''
+
+        coop_config = self.get_config('CoopCampaignConfig', name)
+        retailer = self.get_config('RetailerConfig', coop_config['retailer_name'])
+        if not retailer:
+            raise CoopException('CoopService - get_google_ads_conversions - ' \
+            'The retailer was not found. The conversions were not sent to Google Ads.',
+            status_code=404)
+        if not coop_config:
+            raise CoopException('CoopService - get_google_ads_conversions - '
+            'The Co-Op config was not found. The conversions were not sent to Google Ads.',
+            status_code=404)
+        coop_name = coop_config.get('name')
+        if coop_config.get('is_active'):
+            # Creating a dict for the BqService params
+            coop_config_params = dict(coop_config)
+            coop_config_params['currency'] = retailer['currency']
+            coop_config_params['time_zone'] = retailer['time_zone']
+            google_ads_service = GoogleAdsService(self.bq_client)
+            conversions = google_ads_service.get_conversions(coop_config_params)
+            if not conversions:
+                raise CoopException(f'CoopService - get_google_ads_conversions - ' \
+                f'There was a problem getting the conversions for the Co-Op Config {coop_name}.',
+                status_code=500)
+            return conversions
+        else:
+            logger.info(
+                f'CoopService - get_google_ads_conversions - The Co-Op Config {coop_name} is inactive. ' \
+                'Conversions were not sent to Google Ads.')
+            return ''
+
+    def push_dv360_cm_conversions(self):
+        '''Endpoint to push the DV360/CM conversions for all the Co-Op Configurations'''
+
+        dv360_cm_service = DV360CMService(self.bq_client)
+        configs = self.get_all('CoopCampaignConfig')
+        for coop_config in configs:
+            coop_config_name = coop_config.get('name')
+            if coop_config.get('is_active'):
+                # Push conversions only if destination is available
+                if self.__is_destination_available(coop_config, 'dv360'):
+                    dv360_cm_service.upload_conversions(coop_config)
+                else:
+                    logger.info(f'CoopService - push_dv360_cm_conversions - ' \
+                    f'No DV360 Destination available for Co-Op Config {coop_config_name}.')
+            else:
+                logger.info(f'CoopService - push_dv360_cm_conversions -  The Co-Op ' \
+                f'Config {coop_config_name} is disabled. Conversions were not sent to DV360/CM.')
+
+    def __is_destination_available(self, coop_config, destination_type):
+        params = [destination for destination in coop_config["destinations"]
+                        if destination["type"] == destination_type]
+        return len(params) > 0
