@@ -48,6 +48,7 @@ SELECT
   transaction_id,
   transaction_date,
   transaction_datetime,
+  transaction_timestamp,
   coop_campaign,
   coop_gclid,
   coop_dclid,
