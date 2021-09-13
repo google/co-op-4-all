@@ -28,7 +28,7 @@ def list_logs():
     filter_date = datetime.utcnow() - timedelta(days=1)
     filter_date = filter_date.isoformat(timespec='seconds')
     filter_string = f'timestamp >= "{filter_date}"'
-    coop_logs = client.logger('python')
+    coop_logs = client.logger('app')
 
     try:
         entries = coop_logs.list_entries(filter_=filter_string)
