@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2020 Google LLC
+# Copyright 2021 Google LLC
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,12 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# First build the bundles in the dist directory
-# The bundles will be used to deploy the app to App Engine
-ng build --configuration=production
+# Deploy the backend api-service
+gcloud app deploy backend.yaml
 
 echo '-----------------------------'
 echo
 
-# Deploy Angular app
-gcloud app deploy frontend.yaml
+# Deploy the ads-conversions-proxy proxy service
+gcloud app deploy proxy/proxy.yaml
+
+echo '-----------------------------'
+echo
+
+# Desploy the dispatch rules for the api-service and ads-conversions-proxy endpoints
+
+gcloud app deploy dispatch.yaml
