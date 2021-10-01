@@ -94,6 +94,26 @@ resource "null_resource" "dispatch_deploy" {
   depends_on = [null_resource.backend_deploy, null_resource.ads_conversions_proxy_deploy]
 }
 
+# Enable the Cloud Scheduler API
+
+resource "google_project_service" "cloud_scheduler_api" {
+  project                    = var.project_id
+  service                    = "cloudscheduler.googleapis.com"
+  disable_dependent_services = false
+  disable_on_destroy         = false
+  depends_on = [null_resource.dispatch_deploy]
+}
+
+# Desploy the cron for the api-service and ads-conversions-proxy endpoints
+
+resource "null_resource" "cron_deploy" {
+  provisioner "local-exec" {
+    working_dir = "backend"
+    command = "gcloud app deploy cron.yaml"
+  }
+  depends_on = [google_project_service.cloud_scheduler_api]
+}
+
 # Enable the Campaign Manager API
 
 resource "google_project_service" "campaign_manager_api" {
@@ -101,7 +121,7 @@ resource "google_project_service" "campaign_manager_api" {
   service                    = "dfareporting.googleapis.com"
   disable_dependent_services = false
   disable_on_destroy         = false
-  depends_on = [null_resource.dispatch_deploy]
+  depends_on = [null_resource.cron_deploy]
 }
 
 # Enable the Secret Manager API
@@ -111,7 +131,7 @@ resource "google_project_service" "enable_secret_manager_api" {
   service                    = "secretmanager.googleapis.com"
   disable_dependent_services = false
   disable_on_destroy         = false
-  depends_on = [null_resource.dispatch_deploy]
+  depends_on = [null_resource.cron_deploy]
 }
 
 # Add Secret Manager Accessor role to the App Engine default service account
@@ -123,6 +143,7 @@ resource "google_project_iam_member" "secret_manager_accessor_iam_role" {
   project = var.project_id
   role    = "roles/secretmanager.secretAccessor"
   member  = "serviceAccount:${data.google_app_engine_default_service_account.default.email}"
+  depends_on = [google_project_service.enable_secret_manager_api]
 }
 
 # Create the secrets in Secret Manager to access the CM API.
