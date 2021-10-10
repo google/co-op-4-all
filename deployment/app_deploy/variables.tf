@@ -29,23 +29,3 @@ variable "location" {
     description = "The location where the resources will be deployed"
     default = "us-central"
 }
-
-variable "coop_client_id" {
-    type = string
-    description = "The client id downloaded from the Credentials page"
-}
-
-variable "coop_client_secret" {
-    type = string
-    description = "The client secret downloaded from the Credentials page"
-}
-
-variable "coop_access_token" {
-    type = string
-    description = "The access token generated with the generate_tokens.sh script"
-}
-
-variable "coop_refresh_token" {
-    type = string
-    description = "The refresh token generated with the generate_tokens.sh script"
-}
