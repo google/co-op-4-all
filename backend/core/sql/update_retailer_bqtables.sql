@@ -35,6 +35,7 @@ SELECT DISTINCT
   user_pseudo_id,
   PARSE_DATE('%Y%m%d', event_date) AS transaction_date,
   DATETIME(TIMESTAMP_MICROS(event_timestamp),'{{ params['time_zone'] }}') AS transaction_datetime,
+  event_timestamp as transaction_timestamp,
   (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'transaction_id') AS transaction_id,
   (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_number') AS session_number,
   it.item_id,
