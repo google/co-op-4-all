@@ -19,109 +19,9 @@
 *
 ***************************************************************************/
 
-# Data provider for client
+# Add Secret Manager Accessor role to the App Engine default service account
 
-data "google_client_config" "current" {
-}
-
-resource "null_resource" "ng_cli" {
-  provisioner "local-exec" {
-    working_dir = "frontend"
-    command = "npm install -g @angular/cli"
-  }
-}
-
-resource "null_resource" "ng_dependencies" {
-  provisioner "local-exec" {
-    working_dir = "frontend"
-    command = "npm install"
-  }
-}
-
-resource "null_resource" "angular_build" {
-  provisioner "local-exec" {
-    working_dir = "frontend"
-    command = "ng build --configuration=production"
-  }
-  depends_on = [null_resource.ng_cli, null_resource.ng_dependencies]
-}
-
-# Create the App Engine application
-
-resource "google_app_engine_application" "app" {
-  project     = var.project_id
-  location_id = var.location
-  depends_on = [null_resource.ng_cli, null_resource.ng_dependencies, null_resource.angular_build]
-}
-
-# Deploy the default frontend service
-
-resource "null_resource" "frontend_deploy" {
-  provisioner "local-exec" {
-    working_dir = "frontend"
-    command = "gcloud app deploy frontend.yaml"
-  }
-  depends_on = [google_app_engine_application.app]
-}
-
-# Desploy the backend api-service
-
-resource "null_resource" "backend_deploy" {
-  provisioner "local-exec" {
-    working_dir = "backend"
-    command = "gcloud app deploy backend.yaml"
-  }
-  depends_on = [null_resource.frontend_deploy]
-}
-
-# Desploy the backend ads-conversions-proxy
-
-resource "null_resource" "ads_conversions_proxy_deploy" {
-  provisioner "local-exec" {
-    working_dir = "backend/proxy"
-    command = "gcloud app deploy proxy.yaml"
-  }
-  depends_on = [null_resource.backend_deploy]
-}
-
-# Desploy the dispatch rules for the api-service and ads-conversions-proxy endpoints
-
-resource "null_resource" "dispatch_deploy" {
-  provisioner "local-exec" {
-    working_dir = "backend"
-    command = "gcloud app deploy dispatch.yaml"
-  }
-  depends_on = [null_resource.backend_deploy, null_resource.ads_conversions_proxy_deploy]
-}
-
-# Enable the Cloud Scheduler API
-
-resource "google_project_service" "cloud_scheduler_api" {
-  project                    = var.project_id
-  service                    = "cloudscheduler.googleapis.com"
-  disable_dependent_services = false
-  disable_on_destroy         = false
-  depends_on = [null_resource.dispatch_deploy]
-}
-
-# Desploy the cron for the api-service and ads-conversions-proxy endpoints
-
-resource "null_resource" "cron_deploy" {
-  provisioner "local-exec" {
-    working_dir = "backend"
-    command = "gcloud app deploy cron.yaml"
-  }
-  depends_on = [google_project_service.cloud_scheduler_api]
-}
-
-# Enable the Campaign Manager API
-
-resource "google_project_service" "campaign_manager_api" {
-  project                    = var.project_id
-  service                    = "dfareporting.googleapis.com"
-  disable_dependent_services = false
-  disable_on_destroy         = false
-  depends_on = [null_resource.cron_deploy]
+data "google_app_engine_default_service_account" "default" {
 }
 
 # Enable the Secret Manager API
@@ -131,12 +31,6 @@ resource "google_project_service" "enable_secret_manager_api" {
   service                    = "secretmanager.googleapis.com"
   disable_dependent_services = false
   disable_on_destroy         = false
-  depends_on = [null_resource.cron_deploy]
-}
-
-# Add Secret Manager Accessor role to the App Engine default service account
-
-data "google_app_engine_default_service_account" "default" {
 }
 
 resource "google_project_iam_member" "secret_manager_accessor_iam_role" {
