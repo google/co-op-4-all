@@ -34,12 +34,14 @@ import { CoopConfigurationsModule } from './modules/co-op-configurations/co-op-c
 import { CoopConfigurationsRoutingModule } from './modules/co-op-configurations/co-op-configurations.routing.module';
 import { LogsModule } from './modules/logs/logs.module';
 import { LogsRoutingModule } from './modules/logs/logs-routing.module';
+import { ConfirmDialogComponent } from './modules/confirm-dialog/confirm-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ToolbarComponent,
-    NavbarComponent
+    NavbarComponent,
+    ConfirmDialogComponent
   ],
   imports: [
     BrowserModule,

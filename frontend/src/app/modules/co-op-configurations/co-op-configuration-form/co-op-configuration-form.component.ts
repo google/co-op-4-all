@@ -31,6 +31,8 @@ import { GoogleAdsDestination } from '../../../models/co-op-configuration/google
 import { DV360Destination } from '../../../models/co-op-configuration/dv360-destination';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatOptionSelectionChange } from '@angular/material/core/option';
+import { MatDialog } from "@angular/material/dialog";
+import { ConfirmDialogComponent } from '../../../modules/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-co-op-configuration-form',
@@ -46,15 +48,17 @@ export class CoopConfigurationFormComponent implements OnInit {
   isNew: boolean
   filterTypeOptions: Array<any>
   destinationTypeOptions: Array<any>
-  showSpinner = false
+  showSpinner: boolean = false
+  coopCampaignName: string = '';
 
   constructor(private router: Router,
     private route: ActivatedRoute,
     private coopConfigurationsService: CoopConfigurationsService,
     private retailersService: RetailersService,
-    private _snackBar: MatSnackBar) {
+    private _snackBar: MatSnackBar,
+    private dialog: MatDialog) {
     this.isNew = this.router.url.endsWith('new');
-    this.title = this.isNew ? 'New Co-Op Campaign Configuration' : 'Edit Co-Op Campaign Configuration';
+    this.title = this.isNew ? 'New Co-op Campaign Configuration' : 'Edit Co-op Campaign Configuration';
     this.retailers = [];
     this.coopConfiguration = {} as CoopConfiguration;
     this.coopConfigurationForm = this.buildCoopFormGroup();
@@ -73,6 +77,7 @@ export class CoopConfigurationFormComponent implements OnInit {
         this.setFormGroupValues(this.coopConfiguration);
         this.showSpinner = false;
       } else {
+        this.coopCampaignName = name;
         // Retrieves an existing config
         this.getExistingCoopConfiguration(name);
       }
@@ -254,12 +259,26 @@ export class CoopConfigurationFormComponent implements OnInit {
   }
 
   save() {
-    this.showSpinner = true;
     this.buildCoopConfiguration();
     if (this.isNew) {
+      this.showSpinner = true;
       this.addCoopConfiguration();
     } else {
-      this.updateCoopConfiguration();
+      this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: 'Edit Co-op Campaign Configuration',
+          message: `Are you sure you want to edit the Co-op Campaign Configuration <strong>${this.coopCampaignName}</strong>?</br></br>
+          <strong>WARNING:</strong> The data in the BigQuery table that is linked to this configuration will be replaced and
+          some information might be lost.`
+        }
+      }).afterClosed()
+      .subscribe((confirm: boolean) => {
+          if (confirm) {
+            this.showSpinner = true;
+            this.updateCoopConfiguration();
+          }
+      });
     }
     // TODO reset form after submit?
   }
