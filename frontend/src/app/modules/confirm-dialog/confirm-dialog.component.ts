@@ -19,33 +19,29 @@
 *
 ***************************************************************************/
 
-import { Component } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogData } from '../../models/dialog-data/dialog-data';
 
 @Component({
-  selector: 'app-navbar',
-  templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
+  selector: 'app-confirm-dialog',
+  templateUrl: './confirm-dialog.component.html',
+  styleUrls: ['./confirm-dialog.component.css']
 })
-export class NavbarComponent {
+export class ConfirmDialogComponent implements OnInit {
 
-  links: Array<any>
-  activeLink: string
+constructor(
+    public dialogo: MatDialogRef<ConfirmDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: DialogData) { }
 
-  constructor() {
-   this.links = [{
-      link:'Retailers',
-      route:'retailers',
-      icon: 'store'
-    },{
-      link:'Co-op Campaign Configurations',
-      route: 'co-op-configurations',
-      icon: 'settings'
-    },{
-      link:'Execution Logs',
-      route: 'logs',
-      icon: 'notes'
-    }];
-    this.activeLink = this.links[0].link;
+    closeDialog(): void {
+      this.dialogo.close(false);
+    }
+    confirm(): void {
+      this.dialogo.close(true);
+    }
+
+  ngOnInit() {
   }
 
 }

@@ -34,6 +34,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { NgModule } from '@angular/core';
 
@@ -53,7 +54,8 @@ import { NgModule } from '@angular/core';
     MatPaginatorModule,
     MatSortModule,
     MatSelectModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDialogModule
   ],
   declarations: [
 
@@ -73,7 +75,8 @@ import { NgModule } from '@angular/core';
     MatPaginatorModule,
     MatSortModule,
     MatSelectModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDialogModule
   ]
 })
 export class SharedModule { }

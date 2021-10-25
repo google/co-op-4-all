@@ -19,13 +19,15 @@
 *
 ***************************************************************************/
 
-import { Component, ViewChild, OnInit, ChangeDetectorRef} from '@angular/core';
+import { Component, ViewChild, OnInit, ChangeDetectorRef } from '@angular/core';
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { Retailer } from '../../models/retailer/retailer';
 import { RetailersService } from './services/retailers.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from "@angular/material/dialog";
+import { ConfirmDialogComponent } from '../../modules/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-retailers',
@@ -42,7 +44,8 @@ export class RetailersComponent implements OnInit {
   showSpinner = false
 
   constructor(private retailersService: RetailersService,
-    private _snackBar: MatSnackBar) {
+    private _snackBar: MatSnackBar,
+    private dialog: MatDialog) {
     this.retailers = [];
     this.paginator = new MatPaginator(new MatPaginatorIntl(), ChangeDetectorRef.prototype);
     this.sort = new MatSort();
@@ -73,28 +76,40 @@ export class RetailersComponent implements OnInit {
   }
 
   deleteRetailer(name: string) {
-    this.showSpinner = true;
-    let index = this.retailers.findIndex(retailer => {
-      return retailer.name === name
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: 'Delete Retailer',
+          message: `Are you sure you want to delete the Retailer <strong>${name}</strong>?</br></br>
+          <strong>WARNING:</strong> All the Co-op Configurations and the tables in BigQuery
+          for this retailer will be deleted.`
+        }
+      }).afterClosed()
+      .subscribe((confirm: boolean) => {
+        if (confirm) {
+          this.showSpinner = true;
+          let index = this.retailers.findIndex(retailer => {
+            return retailer.name === name
+          });
+          if (index !== -1) {
+            let retailer = this.retailers[index];
+            this.retailersService.deleteRetailer(retailer.name).then((response) => {
+              this.openSnackBar(`The retailer ${retailer.name} was deleted successfully.`);
+              this.retailers.splice(index, 1);
+              this.dataSource.data = this.retailers;
+              this.showSpinner = false;
+            }).catch(error => {
+                console.error(error);
+                this.openSnackBar(`ERROR: ${error}`);
+                this.showSpinner = false;
+            });
+          } else {
+            console.log(`The retailer was not found.`);
+            this.openSnackBar(`The retailer was not found.`);
+            this.showSpinner = false;
+          }
+        }
     });
-    if (index !== -1) {
-      let retailer = this.retailers[index];
-      this.retailersService.deleteRetailer(retailer.name).then((response) => {
-        this.openSnackBar(`The retailer ${retailer.name} was deleted successfully.`);
-        this.retailers.splice(index, 1);
-        this.dataSource.data = this.retailers;
-        this.showSpinner = false;
-      })
-      .catch(error => {
-        console.error(error);
-        this.openSnackBar(`ERROR: ${error}`);
-        this.showSpinner = false;
-      });
-    } else {
-      console.log(`The retailer was not found.`);
-      this.openSnackBar(`The retailer was not found.`);
-      this.showSpinner = false;
-    }
   }
 
   buildColumns() {
