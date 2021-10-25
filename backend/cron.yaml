@@ -2,3 +2,6 @@ cron:
 - description: "Run the update_all_configs task."
   url: /api/scheduler/update_all_configs
   schedule: every 1 hours
+- description: "Push Conversions to DV360."
+  url: /api/scheduler/push_dv360_cm_conversions
+  schedule: every day 23:00
