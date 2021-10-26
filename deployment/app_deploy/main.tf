@@ -64,7 +64,7 @@ resource "null_resource" "frontend_deploy" {
   depends_on = [google_app_engine_application.app]
 }
 
-# Desploy the backend api-service
+# Deploy the backend api-service
 
 resource "null_resource" "backend_deploy" {
   provisioner "local-exec" {
@@ -74,17 +74,27 @@ resource "null_resource" "backend_deploy" {
   depends_on = [null_resource.frontend_deploy]
 }
 
-# Desploy the backend ads-conversions-proxy
+# Replace the proxy env variables before the proxy deployment.
+
+resource "null_resource" "replace_proxy_env_variables" {
+  provisioner "local-exec" {
+    working_dir = "../../backend/proxy"
+    command = "export IAP_CLIENT_ID=${var.iap_client_id}; envsubst < proxy.yaml | sponge proxy.yaml"
+  }
+  depends_on = [null_resource.backend_deploy]
+}
+
+# Deploy the backend ads-conversions-proxy
 
 resource "null_resource" "ads_conversions_proxy_deploy" {
   provisioner "local-exec" {
     working_dir = "../../backend/proxy"
     command = "gcloud app deploy proxy.yaml"
   }
-  depends_on = [null_resource.backend_deploy]
+  depends_on = [null_resource.replace_proxy_env_variables]
 }
 
-# Desploy the dispatch rules for the api-service and ads-conversions-proxy endpoints
+# Deploy the dispatch rules for the api-service and ads-conversions-proxy endpoints
 
 resource "null_resource" "dispatch_deploy" {
   provisioner "local-exec" {
@@ -104,7 +114,7 @@ resource "google_project_service" "cloud_scheduler_api" {
   depends_on = [null_resource.dispatch_deploy]
 }
 
-# Desploy the cron for the api-service and ads-conversions-proxy endpoints
+# Deploy the cron for the api-service and ads-conversions-proxy endpoints
 
 resource "null_resource" "cron_deploy" {
   provisioner "local-exec" {
