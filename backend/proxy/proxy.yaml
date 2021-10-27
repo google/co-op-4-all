@@ -16,6 +16,9 @@ service: ads-conversions-proxy
 
 runtime: python39
 
+env_variables:
+  IAP_CLIENT_ID: "$IAP_CLIENT_ID"
+
 handlers:
 - url: /.*
   script: auto

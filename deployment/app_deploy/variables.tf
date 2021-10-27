@@ -29,3 +29,8 @@ variable "location" {
     description = "The location where the resources will be deployed"
     default = "us-central"
 }
+
+variable "iap_client_id" {
+  type = string
+  description = "The Identity Aware Proxy Client ID"
+}
