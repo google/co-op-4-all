@@ -139,20 +139,20 @@ create_secret_manager_secrets() {
     echo "Campaign Manager & DV360 Integration"
     echo $SEPARATOR
     echo 'Creating Client Id secret in Secret Manager...'
-    printf $client_id | gcloud secrets create coop_client_id1 --data-file=- \
-    --labels='label'='coopclientid2'
+    printf $client_id | gcloud secrets create coop_client_id --data-file=- \
+    --labels='label'='coopclientid'
     echo ""
     echo 'Creating Client Secret secret in Secret Manager...'
-    printf $client_secret | gcloud secrets create coop_client_secret1 --data-file=- \
-    --labels='label'='coopclientsecret1'
+    printf $client_secret | gcloud secrets create coop_client_secret --data-file=- \
+    --labels='label'='coopclientsecret'
     echo ""
     echo 'Creating Access Token secret in Secret Manager...'
-    printf $access_token | gcloud secrets create coop_access_token1 --data-file=- \
-    --labels='label'='coopaccesstoken1'
+    printf $access_token | gcloud secrets create coop_access_token --data-file=- \
+    --labels='label'='coopaccesstoken'
     echo ""
     echo 'Creating Refresh Token secret in Secret Manager...'
-    printf $refresh_token | gcloud secrets create coop_refresh_token1 --data-file=- \
-    --labels='label'='cooprefreshtoken1'
+    printf $refresh_token | gcloud secrets create coop_refresh_token --data-file=- \
+    --labels='label'='cooprefreshtoken'
     echo ""
 }
 
