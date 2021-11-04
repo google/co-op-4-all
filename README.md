@@ -104,8 +104,8 @@ This guide assumes that the instructions will be followed inside Google Cloud Pl
             - Cron job to execute the **push_dv360_cm_conversions** - a daily cron to push the offline conversions to CM/DV360.
         - *The Proxy Service* - The service handling the Google Ads Offline Conversions Import. Since the **Scheduled Import** is configured directly in Google Ads, this endpoint needs to be open using a proxy so the conversions can be pulled from the Google Ads platform.
 3. Wait for the script to finish, it might take up to 10 minutes.
-   - In case of any errors, run the specific commands manually to fix them. Please check how to deploy each service individually in the section [below](#get-the-identity-aware-proxy-client-id).
-   - At some point the IAP Client Id will be required, please follow the steps in the section [below](#deploy-each-service-individually) to get it. If there is an error in the IAP page saying that the client id is misconfigured, please follow the steps in the UI to fix it.
+   - In case of any errors, run the specific commands manually to fix them. Please check how to deploy each service individually in the section [below](#deploy-each-service-individually).
+   - At some point the IAP Client Id will be required, please follow the steps in the section [below](#get-the-identity-aware-proxy-client-id) to get it. If there is an error in the IAP page saying that the client id is misconfigured, please follow the steps in the UI to fix it.
 4. After the deployment is ready, go to the **App Engine** page to verify the deployed UI in the **Dashboard** option
 from the menu, then click on the URL at the top (project-id.uc.r.appspot.com). You should see the following message in the UI: *Retailers not found*.
    - If a parsing error is displayed, wait at least 5 minutes for App Engine to update and finish the deployment setup, then refresh the UI.
