@@ -3,13 +3,13 @@
 <mat-divider></mat-divider>
 <form class="form-container" [formGroup]="coopConfigurationForm" (ngSubmit)="save()">
     <div class="form-item">
-        <div><label>Co-Op Config Name</label></div>
+        <div><label>Co-op Config Name</label></div>
         <mat-form-field appearance="legacy">
-            <mat-label>Co-Op Configuration Name</mat-label>
+            <mat-label>Co-op Configuration Name</mat-label>
             <input matInput formControlName="name">
             <mat-icon matSuffix>settings</mat-icon>
             <mat-hint *ngIf="isInvalidInput('name')">
-                Please enter a valid Co-Op Configuration Name
+                Please enter a valid Co-op Configuration Name
             </mat-hint>
         </mat-form-field>
     </div>

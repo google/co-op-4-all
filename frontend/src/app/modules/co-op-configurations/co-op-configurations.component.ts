@@ -93,7 +93,7 @@ export class CoopConfigurationsComponent implements OnInit {
           if (index !== -1) {
             let coopConfiguration: CoopConfiguration = this.coopConfigurations[index];
             this.coopConfigurationsService.deleteCoopConfiguration(coopConfiguration.name).then((response) => {
-              this.openSnackBar(`The Co-Op Configuration ${coopConfiguration.name} was deleted successfully.`);
+              this.openSnackBar(`The Co-op Configuration ${coopConfiguration.name} was deleted successfully.`);
               this.coopConfigurations.splice(index, 1);
               this.dataSource.data = this.coopConfigurations;
               this.showSpinner = false;
@@ -104,8 +104,8 @@ export class CoopConfigurationsComponent implements OnInit {
                 this.showSpinner = false;
               });
           } else {
-            console.log(`The Co-Op Configuration was not found.`);
-            this.openSnackBar(`The Co-Op Configuration was not found.`);
+            console.log(`The Co-op Configuration was not found.`);
+            this.openSnackBar(`The Co-op Configuration was not found.`);
             this.showSpinner = false;
           }
 
