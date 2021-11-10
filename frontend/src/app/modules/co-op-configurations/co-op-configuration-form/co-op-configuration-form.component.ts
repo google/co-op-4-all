@@ -531,7 +531,7 @@ export class CoopConfigurationFormComponent implements OnInit {
 
   buildMessage(action: string) {
     let message;
-    message = `The Co-Op Configuration ${this.coopConfiguration.name} was ${action} successfully!`;
+    message = `The Co-op Configuration ${this.coopConfiguration.name} was ${action} successfully!`;
     return message
   }
 
