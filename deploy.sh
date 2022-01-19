@@ -20,11 +20,11 @@
 SEPARATOR="$(printf -- '-%.0s' {1..70})"
 
 echo ""
-echo "This utility will help you set up Co-Op4all for the first time"
+echo "This utility will help you set up Co-op4all for the first time"
 echo ""
 echo $SEPARATOR
 echo "This is a reference implementation only and not warrantied by Google."
-echo "Co-Op4all will be configured in the Google Cloud project ${GOOGLE_CLOUD_PROJECT}"
+echo "Co-op4all will be configured in the Google Cloud project ${GOOGLE_CLOUD_PROJECT}"
 echo ""
 
 confirm() {
@@ -48,6 +48,7 @@ enable_services() {
     gcloud services enable dfareporting.googleapis.com
     gcloud services enable secretmanager.googleapis.com
     gcloud services enable cloudbuild.googleapis.com
+    gcloud services enable iap.googleapis.com
 }
 
 deploy_frontend() {
@@ -56,8 +57,8 @@ deploy_frontend() {
     echo $SEPARATOR
     echo ""
     cd frontend/
-    npm install -g --quiet @angular/cli
-    npm install --silent
+    npm install -g @angular/cli@13.0.1
+    npm install
     ng build --configuration=production
     gcloud app deploy frontend.yaml
 }
@@ -164,11 +165,11 @@ if confirm "Do you acknowledge and wish to proceed (Yy/Nn)?" ; then
     read -p "Enter the Refresh Token: " -r REFRESH_TOKEN
     read -p "Enter the Project Id where the BQ Export is (the user deploying Co-op4All must have at least Editor access in the BQ Export project): " -r BQ_EXPORT_PROJECT_ID
     echo ""
-    echo $CLIENT_ID
-    echo $CLIENT_SECRET
-    echo $ACCESS_TOKEN
-    echo $REFRESH_TOKEN
-    echo $BQ_EXPORT_PROJECT_ID
+    echo "Client Id: " $CLIENT_ID
+    echo "Client Secret: " $CLIENT_SECRET
+    echo "Access Token: " $ACCESS_TOKEN
+    echo "Refresh Token: " $REFRESH_TOKEN
+    echo "BigQuery Export Project: " $BQ_EXPORT_PROJECT_ID
     echo ""
     if confirm "Please confirm that the provided information is correct. Continue (Yy/Nn)?" ; then
         echo ""
