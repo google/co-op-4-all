@@ -97,8 +97,8 @@ This guide assumes that the instructions will be followed inside Google Cloud Pl
 
 1. Open a Google Cloud shell console.
 2. Check the Node version using ```node -v```. Make sure it is greater or equal than 16.10.0.
-  - Use nvm to install the latest Node version, execute ```nvm install node```. Details about nvm [here](https://github.com/nvm-sh/nvm)
-3. Go to the root folder and execute the ```deploy.sh``` script using ```bash deploy.sh``` or ```./deploy.sh```
+  - Use nvm to install the Node version, execute ```nvm install 16.10.0```. Details about nvm [here](https://github.com/nvm-sh/nvm)
+3. Go to the root folder and execute the ```deploy.sh``` script using ```bash deploy.sh``` or ```./deploy.sh```. Please provide all the required parameters for the script to start. The IAP client id will be requested later, after the App Engine app has been deployed.
     * The deployment script will deploy the services and cron jobs described below. It will also enable the required APIs for each service.
         - *Default Service* - The web UI
         - *The API Service* - The service handling all the backend calls for CRUD and processing operations.
