@@ -1,8 +1,8 @@
-# Co-Op4All
+# Co-op4All
 
-Co-Op4All is a platform to run co-marketing campaigns between brands and retailers, providing campaign performance dashboards and smart bidding optimization capabilities (offline conversions).
+Co-op4All is a platform to run co-marketing campaigns between brands and retailers, providing campaign performance dashboards and smart bidding optimization capabilities (offline conversions).
 
-***Disclaimer: Co-Op4All is not an officially supported Google product.***
+***Disclaimer: Co-op4All is not an officially supported Google product.***
 
 ## License
 
@@ -89,7 +89,7 @@ This will generate a Client Id and a Client Secret. Save the values since they a
 1. Open the Cloud Shell and clone this repository using ```git clone https://github.com/google/co-op-4-all``` and run the ```generate_tokens.sh``` script in the root folder using ```bash generate_tokens.sh client_id client_secret``` and follow the instructions by opening the link and accepting all
 the permissions. Then, copy the generated code and paste it in the console when required.
 This will generate the **Access token** and the **Refresh token**, save the values since they will be used later.
-   - **Important:** The user who opens the generated link and accepts all the permissions, must have access to the platforms that Co-Op4All will integrate.
+   - **Important:** The user who opens the generated link and accepts all the permissions, must have access to the platforms that Co-op4All will integrate.
 
 ## 5. Deployment
 
