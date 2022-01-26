@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS
 PARTITION BY
   transaction_date
 OPTIONS
-  (partition_expiration_days={{ params['coop_max_backfill'] }});
+  (partition_expiration_days={{ params['coop_max_backfill'] }}); -- 90 days by default
 
 INSERT
   {{ params['name'] }}.all_transactions
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS
 PARTITION BY
   click_date
 OPTIONS
-  (partition_expiration_days={{ params['coop_max_backfill'] }} + 30);
+  (partition_expiration_days={{ params['coop_max_backfill'] }} + 30); -- To account for attribution. The transaction could happen on the first day, and a click has to happen within 30 days prior.
 
 INSERT
   {{ params['name'] }}.all_clicks
@@ -86,7 +86,7 @@ SELECT
   coop_gclid,
   coop_dclid,
   click_date,
-  MIN(event_datetime) AS click_datetime
+  MIN(event_datetime) AS click_datetime -- The first occurrence of gclid in an event, there could be several events with the same gclid (page view, etc)
 FROM (
   SELECT
     user_pseudo_id,
