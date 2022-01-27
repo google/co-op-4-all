@@ -22,7 +22,7 @@ limitations under the License.
 
 
 CREATE OR REPLACE TABLE
-  {{ params['retailer_name'] }}.{{ params['name']}} AS
+  {{ params['retailer_name'] }}.{{ params['name']}} AS -- The table is always replaced with new data
 
 WITH coop_transactions AS (
 SELECT
@@ -37,8 +37,8 @@ INNER JOIN
   {{ params['retailer_name'] }}.all_transactions t
 USING(user_pseudo_id)
 WHERE
-  c.click_datetime <= t.transaction_datetime
-  AND c.click_datetime >= DATE_SUB(t.transaction_datetime, INTERVAL {{ params['attribution_window'] }} DAY)
+  c.click_datetime <= t.transaction_datetime -- To get a click that is before a transaction
+  AND c.click_datetime >= DATE_SUB(t.transaction_datetime, INTERVAL {{ params['attribution_window'] }} DAY) -- And within the attribution window (30 days by default)
   AND coop_campaign IN ({{ params['utm_campaigns'] | map('tojson') | join(', ')}})
   {% for filter in params['filters'] %}
   AND {{ filter['type'] }} IN ({{filter['data'] | map('tojson') | join(', ')}})
@@ -62,7 +62,7 @@ SELECT
 FROM (
   SELECT
     transaction_id,
-    MAX(click_datetime) AS click_datetime
+    MAX(click_datetime) AS click_datetime -- Transactions might be duplicated, the latest is selected
   FROM
     coop_transactions
   GROUP BY 1)

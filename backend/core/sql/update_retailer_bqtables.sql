@@ -18,8 +18,8 @@ limitations under the License.
 DECLARE next_partition DATE;
 DECLARE latest_partition DATE;
 
-SET latest_partition = DATE_SUB(CURRENT_DATE('{{ params['time_zone'] }}'), INTERVAL 1 DAY);
-SET next_partition = (
+SET latest_partition = DATE_SUB(CURRENT_DATE('{{ params['time_zone'] }}'), INTERVAL 1 DAY); -- Get latest partition to process, which is 'yesterday'
+SET next_partition = ( -- Get latest created/existing partition in BQ (the date until the data was processed correctly, could be N days ago)
     SELECT
       DATE_ADD(PARSE_DATE('%Y%m%d', MAX(partition_id)), INTERVAL 1 DAY)
     FROM
