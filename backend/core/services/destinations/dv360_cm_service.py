@@ -14,11 +14,13 @@
 
 import utils
 from googleapiclient import discovery
-from google.oauth2.credentials import Credentials
-from ..oauth_credentials_service import OAuthCredentialService
+import google.auth
 
 LOGGER_NAME = 'coop4all.dv360_cm_service'
 logger = utils.get_coop_logger(LOGGER_NAME)
+API_SCOPES = ['https://www.googleapis.com/auth/dfareporting',
+            'https://www.googleapis.com/auth/dfatrafficking',
+            'https://www.googleapis.com/auth/ddmconversions']
 
 class DV360CMService():
     '''DV360/CM service that retrieves conversions for a specific
@@ -31,18 +33,7 @@ class DV360CMService():
 
     def __init__(self, bq_service):
         self.bq_service = bq_service
-        oauth_credentials_service = OAuthCredentialService()
-        oauth_credentials = oauth_credentials_service.get_oauth_credentials()
-        credentials = Credentials(
-        token=oauth_credentials.get_access_token(),
-        refresh_token=oauth_credentials.get_refresh_token(),
-        client_id=oauth_credentials.get_client_id(),
-        client_secret=oauth_credentials.get_client_secret(),
-        token_uri='https://accounts.google.com/o/oauth2/token',
-        scopes=[
-            'https://www.googleapis.com/auth/dfareporting',
-            'https://www.googleapis.com/auth/dfatrafficking',
-            'https://www.googleapis.com/auth/ddmconversions'])
+        credentials, project = google.auth.default(scopes=API_SCOPES)
         self.__build_dv360_cm_service(credentials)
 
     def __build_dv360_cm_service(self, credentials):

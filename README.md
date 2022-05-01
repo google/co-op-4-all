@@ -28,8 +28,7 @@ is not formally supported.***
   - [2. Requirements](#2-requirements)
     - [2.1. APIs](#21-apis)
   - [3. Supported Offline Conversion Import Integrations](#3-supported-offline-conversion-import-integrations)
-  - [4. Create the required access tokens and secrets](#4-create-the-required-access-tokens-and-secrets)
-  - [5. Deployment](#5-deployment)
+  - [4. Deployment](#4-deployment)
   - [6. Secure the App using Identity Aware Proxy](#6-secure-the-app-using-identity-aware-proxy)
   - [Additional Information](#additional-information)
     - [Get the Identity Aware Proxy Client Id](#get-the-identity-aware-proxy-client-id)
@@ -67,31 +66,12 @@ is not formally supported.***
 - Campaign Manager
 - Datastore
 - BigQuery
-- Secret Manager
 
 ## 3. Supported Offline Conversion Import Integrations
 - Google Ads Offline Conversions Import using **gclid** [[details]](https://support.google.com/google-ads/answer/2998031?hl=en)
 - Campaign Manager / DV360 Offline Conversions Import using **dclid** [[details]](https://support.google.com/searchads/answer/7384231?hl=en)
 
-## 4. Create the required access tokens and secrets
-
-Co-op4All connects with several Google platforms so this process needs OAuth tokens for an account that can authenticate in those systems.
-
-Follow the steps in order to create the tokens.
-1. Access the Google Cloud console.
-2. Go to the **API & Services** option on the top-left menu.
-3. Select the **OAuth consent screen** option and configure the **consent screen**. In the **User type** option select **External** and click **Create**.
-4. Assign a name to the application, it can be **Coop4All**, and complete all the other required fields.
-5. Accept all the defaults and click on **Save and Continue** and then **Back to Dashboard**.
-6. In the **Publishing status** option select **PUBLISH APP**.
-7. After the **OAuth consent screen** has been configured, go to the **Credentials** page under **API & Services** and create an **OAuth Client Id** with Application type set as **Desktop App**.
-This will generate a Client Id and a Client Secret. Save the values since they are required in the next steps.
-1. Open the Cloud Shell and clone this repository using ```git clone https://github.com/google/co-op-4-all``` and run the ```generate_tokens.sh``` script in the root folder using ```bash generate_tokens.sh client_id client_secret``` and follow the instructions by opening the link and accepting all
-the permissions. Then, copy the generated code and paste it in the console when required.
-This will generate the **Access token** and the **Refresh token**, save the values since they will be used later.
-   - **Important:** The user who opens the generated link and accepts all the permissions, must have access to the platforms that Co-op4All will integrate.
-
-## 5. Deployment
+## 4. Deployment
 
 This guide assumes that the instructions will be followed inside Google Cloud Platform shell console.
 
