@@ -21,7 +21,7 @@
 
 SELECT
     coop_dclid as Google_Click_ID,
-    'Offline Conversions {{ params['name'] }} Co-Op4All' AS Conversion_Name,
+    'Offline_Conversions_{{ params['name'] }}_Co-Op4All' AS Conversion_Name,
     transaction_timestamp AS Conversion_Timestamp,
     SUM(quantity) AS Conversion_Quantity,
     SUM(item_revenue) AS Conversion_Value,

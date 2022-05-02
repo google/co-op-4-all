@@ -46,7 +46,6 @@ enable_services() {
     gcloud services enable bigquery.googleapis.com
     gcloud services enable cloudscheduler.googleapis.com
     gcloud services enable dfareporting.googleapis.com
-    gcloud services enable secretmanager.googleapis.com
     gcloud services enable cloudbuild.googleapis.com
     gcloud services enable iap.googleapis.com
 }
@@ -113,11 +112,6 @@ grant_permissions_to_default_service_account() {
     parts=(${dsa_command// / })
     default_service_account=${parts[8]}
     echo ""
-    echo "Granting Secret Manager Accessor role to the App Engine default service account ${default_service_account}..."
-    echo ""
-    gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
-    --member="serviceAccount:${default_service_account}" --role='roles/secretmanager.secretAccessor'
-    echo ""
     echo "Granting BigQuery Data Viewer role to the App Engine default service account ${default_service_account} in the project ${BQ_EXPORT_PROJECT_ID}..."
     echo ""
     gcloud projects add-iam-policy-binding $BQ_EXPORT_PROJECT_ID \
@@ -135,53 +129,22 @@ grant_iap_permissions() {
     echo "Please grant permissions to other users using the IAM UI."
 }
 
-create_secret_manager_secrets() {
-    echo $SEPARATOR
-    echo "Campaign Manager & DV360 Integration"
-    echo $SEPARATOR
-    echo 'Creating Client Id secret in Secret Manager...'
-    printf $CLIENT_ID | gcloud secrets create coop_client_id --data-file=- \
-    --labels='label'='coopclientid'
-    echo ""
-    echo 'Creating Client Secret secret in Secret Manager...'
-    printf $CLIENT_SECRET | gcloud secrets create coop_client_secret --data-file=- \
-    --labels='label'='coopclientsecret'
-    echo ""
-    echo 'Creating Access Token secret in Secret Manager...'
-    printf $ACCESS_TOKEN | gcloud secrets create coop_access_token --data-file=- \
-    --labels='label'='coopaccesstoken'
-    echo ""
-    echo 'Creating Refresh Token secret in Secret Manager...'
-    printf $REFRESH_TOKEN | gcloud secrets create coop_refresh_token --data-file=- \
-    --labels='label'='cooprefreshtoken'
-    echo ""
-}
-
 if confirm "Do you acknowledge and wish to proceed (Yy/Nn)?" ; then
     echo ""
-    read -p "Enter the Client Id: " -r CLIENT_ID
-    read -p "Enter the Client Secret: " -r CLIENT_SECRET
-    read -p "Enter the Access Token: " -r ACCESS_TOKEN
-    read -p "Enter the Refresh Token: " -r REFRESH_TOKEN
     read -p "Enter the Project Id where the BQ Export is (the user deploying Co-op4All must have at least Editor access in the BQ Export project): " -r BQ_EXPORT_PROJECT_ID
     echo ""
-    echo "Client Id: " $CLIENT_ID
-    echo "Client Secret: " $CLIENT_SECRET
-    echo "Access Token: " $ACCESS_TOKEN
-    echo "Refresh Token: " $REFRESH_TOKEN
     echo "BigQuery Export Project: " $BQ_EXPORT_PROJECT_ID
     echo ""
     if confirm "Please confirm that the provided information is correct. Continue (Yy/Nn)?" ; then
         echo ""
-        enable_services;
-        deploy_frontend;
-        deploy_api_service;
-        deploy_proxy;
-        deploy_dispatch;
-        deploy_cron;
+        enable_services
+        deploy_frontend
+        deploy_api_service
+        deploy_proxy
+        deploy_dispatch
+        deploy_cron
         grant_permissions_to_default_service_account
         grant_iap_permissions
-        create_secret_manager_secrets
         echo "Setup Completed!"
     else
         echo "Aborting... Please run the script again with the correct parameters."
