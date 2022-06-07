@@ -22,13 +22,12 @@ specific language governing permissions and limitations under the License.
 ***Note that this solution is not an official Google product and
 is not formally supported.***
 
-## Contents
-
   - [1. How does it work?](#1-how-does-it-work)
   - [2. Requirements](#2-requirements)
     - [2.1. APIs](#21-apis)
   - [3. Supported Offline Conversion Import Integrations](#3-supported-offline-conversion-import-integrations)
-  - [4. Deployment](#4-deployment)
+  - [4. Configure the OAuth Screen](#4-configure-the-oauth-screen)
+  - [5. Deployment](#5-deployment)
   - [6. Secure the App using Identity Aware Proxy](#6-secure-the-app-using-identity-aware-proxy)
   - [Additional Information](#additional-information)
     - [Get the Identity Aware Proxy Client Id](#get-the-identity-aware-proxy-client-id)
@@ -71,24 +70,33 @@ is not formally supported.***
 - Google Ads Offline Conversions Import using **gclid** [[details]](https://support.google.com/google-ads/answer/2998031?hl=en)
 - Campaign Manager / DV360 Offline Conversions Import using **dclid** [[details]](https://support.google.com/searchads/answer/7384231?hl=en)
 
-## 4. Deployment
+## 4. Configure the OAuth Consent Screen
+
+1. Access the Google Cloud console.
+2. Go to the **API & Services** option on the top-left menu.
+3. Select the **OAuth consent screen** option and configure the **consent screen**. In the **User type** option select **External** and click **Create**.
+4. Assign a name to the application, it can be **Coop4All**, and complete all the other required fields.
+5. Accept all the defaults and click on **Save and Continue** and then **Back to Dashboard**.
+
+## 5. Deployment
 
 This guide assumes that the instructions will be followed inside Google Cloud Platform shell console.
 
 1. Open a Google Cloud shell console.
 2. Check the Node version using ```node -v```. Make sure it is greater or equal than 16.10.0.
   - Use nvm to install the Node version, execute ```nvm install 16.10.0```. Details about nvm [here](https://github.com/nvm-sh/nvm)
-3. Go to the root folder and execute the ```deploy.sh``` script using ```bash deploy.sh``` or ```./deploy.sh```. Please provide all the required parameters for the script to start. The IAP client id will be requested later, after the App Engine app has been deployed.
+3. Clone the Co-op4All repository ```git clone https://github.com/google/co-op-4-all.git ```
+4. Go to the root folder and execute the ```deploy.sh``` script using ```bash deploy.sh``` or ```./deploy.sh```. Please provide all the required parameters for the script to start. The IAP client id will be requested later, after the App Engine app has been deployed.
     * The deployment script will deploy the services and cron jobs described below. It will also enable the required APIs for each service.
         - *Default Service* - The web UI
         - *The API Service* - The service handling all the backend calls for CRUD and processing operations.
             - Cron job to execute the **update_all_configs** - a daily cron to update all the co-op campaign configurations.
             - Cron job to execute the **push_dv360_cm_conversions** - a daily cron to push the offline conversions to CM/DV360.
         - *The Proxy Service* - The service handling the Google Ads Offline Conversions Import. Since the **Scheduled Import** is configured directly in Google Ads, this endpoint needs to be open using a proxy so the conversions can be pulled from the Google Ads platform.
-4. Wait for the script to finish, it might take up to 10 minutes.
+5. Wait for the script to finish, it might take up to 10 minutes.
    - In case of any errors, run the specific commands manually to fix them. Please check how to deploy each service individually in the section [below](#deploy-each-service-individually).
    - At some point the IAP Client Id will be required, please follow the steps in the section [below](#get-the-identity-aware-proxy-client-id) to get it. If there is an error in the IAP page saying that the client id is misconfigured, please follow the steps in the UI to fix it.
-5. After the deployment is ready, go to the **App Engine** page to verify the deployed UI in the **Dashboard** option
+6. After the deployment is ready, go to the **App Engine** page to verify the deployed UI in the **Dashboard** option
 from the menu, then click on the URL at the top (project-id.uc.r.appspot.com). You should see the following message in the UI: *Retailers not found*.
    - If a parsing error is displayed, wait at least 5 minutes for App Engine to update and finish the deployment setup, then refresh the UI.
 
@@ -142,3 +150,8 @@ In case of any errors or **code update**, each service can be deployed individua
    - Deploy the dispatch ```gcloud app deploy dispatch.yaml``` to redirect the requests to the correct service.
      - IMPORTANT: After deploying a new version of a service, always run this command.
    - Deploy the crons ```gcloud app deploy cron.yaml```
+
+### Note about data expiration in the BQ tables
+
+In order to reduce Google Cloud costs, the **all_transactions** and **all_clicks** BQ tables have an expiration time of 90 days by default, which means that the data is going to be deleted after 90 days. The expiration for the tables can be configured when creating a Retailer in the App Engine UI. The expiration days configuration is the **Co-op Max Backfill** field in the Retailers tab and it has a time range of 30-180 days. It is recommended to create a backup if the data will be used after this period.
+Keep in mind that the retailers cannot be modified after creation, so please verify this value before creating a retailer or the retailer would need to be removed and re-created.
