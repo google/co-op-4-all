@@ -25,7 +25,7 @@ SET next_partition = ( -- Get latest created/existing partition in BQ (the date 
     FROM
       {{ params['name'] }}.INFORMATION_SCHEMA.PARTITIONS
     WHERE
-      table_name IN ('all_gclids', 'all_transactions')
+      table_name IN ('all_clicks', 'all_transactions')
       AND partition_id != '__NULL__'
 );
 
