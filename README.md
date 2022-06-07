@@ -70,7 +70,7 @@ is not formally supported.***
 - Google Ads Offline Conversions Import using **gclid** [[details]](https://support.google.com/google-ads/answer/2998031?hl=en)
 - Campaign Manager / DV360 Offline Conversions Import using **dclid** [[details]](https://support.google.com/searchads/answer/7384231?hl=en)
 
-## 4. Configure the OAuth Screen
+## 4. Configure the OAuth Consent Screen
 
 1. Access the Google Cloud console.
 2. Go to the **API & Services** option on the top-left menu.
