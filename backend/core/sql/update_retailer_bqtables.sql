@@ -66,9 +66,9 @@ FROM (
     PARSE_DATE('%Y%m%d', event_date) AS click_date,
     DATETIME(TIMESTAMP_MICROS(event_timestamp),'{{ params['time_zone'] }}') event_datetime,
     (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_number') as session_number,
-    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'source') as coop_campaign,
-    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'gclid') as coop_gclid,
-    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'dclid') as coop_dclid
+    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'coop_campaign') as coop_campaign,
+    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'coop_gclid') as coop_gclid,
+    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'coop_dclid') as coop_dclid
   FROM
     `{{ params['bq_ga_table'] }}`
   WHERE
