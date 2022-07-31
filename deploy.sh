@@ -19,13 +19,13 @@
 
 SEPARATOR="$(printf -- '-%.0s' {1..70})"
 
-echo ""
+echo
 echo "This utility will help you set up Co-op4all for the first time"
-echo ""
+echo
 echo $SEPARATOR
 echo "This is a reference implementation only and not warrantied by Google."
 echo "Co-op4all will be configured in the Google Cloud project ${GOOGLE_CLOUD_PROJECT}"
-echo ""
+echo
 
 confirm() {
   while true; do
@@ -42,7 +42,7 @@ enable_services() {
     echo $SEPARATOR
     echo "Activating Services..."
     echo $SEPARATOR
-    echo ""
+    echo
     gcloud services enable bigquery.googleapis.com
     gcloud services enable cloudscheduler.googleapis.com
     gcloud services enable dfareporting.googleapis.com
@@ -54,7 +54,7 @@ deploy_frontend() {
     echo $SEPARATOR
     echo "Deploying frontend..."
     echo $SEPARATOR
-    echo ""
+    echo
     cd frontend/
     npm install -g @angular/cli@13.0.1
     npm install
@@ -66,7 +66,7 @@ deploy_api_service() {
     echo $SEPARATOR
     echo "Deploying api-service..."
     echo $SEPARATOR
-    echo ""
+    echo
     cd ../backend
     gcloud app deploy backend.yaml --quiet
 }
@@ -75,10 +75,10 @@ deploy_proxy() {
     echo $SEPARATOR
     echo "Deploying proxy..."
     echo $SEPARATOR
-    echo ""
+    echo
     echo "The Identity Aware Proxy Client Id is required for deployment..."
     echo "Please follow the steps on the GitHub documentation here: https://github.com/google/co-op-4-all#get-the-identity-aware-proxy-client-id to get the IAP Client Id"
-    echo ""
+    echo
     read -p "Enter the IAP Client Id to continue: " -r IAP_CLIENT_ID
     export IAP_CLIENT_ID="$IAP_CLIENT_ID"
     cd proxy/
@@ -90,7 +90,7 @@ deploy_dispatch() {
     echo $SEPARATOR
     echo "Deploying dispatch..."
     echo $SEPARATOR
-    echo ""
+    echo
     cd ../
     gcloud app deploy dispatch.yaml --quiet
 }
@@ -99,7 +99,7 @@ deploy_cron() {
     echo $SEPARATOR
     echo "Deploying cron..."
     echo $SEPARATOR
-    echo ""
+    echo
     gcloud app deploy cron.yaml --quiet
 }
 
@@ -111,11 +111,16 @@ grant_permissions_to_default_service_account() {
     # split string by spaces
     parts=(${dsa_command// / })
     default_service_account=${parts[8]}
-    echo ""
+    echo
     echo "Granting BigQuery Data Viewer role to the App Engine default service account ${default_service_account} in the project ${BQ_EXPORT_PROJECT_ID}..."
-    echo ""
+    echo
     gcloud projects add-iam-policy-binding $BQ_EXPORT_PROJECT_ID \
     --member="serviceAccount:${default_service_account}" --role='roles/bigquery.dataViewer'
+    echo
+    echo "Granting IAP-secured Web App User role to the App Engine default service account ${default_service_account} in the project ${GOOGLE_CLOUD_PROJECT}..."
+    gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
+    --member="serviceAccount:${default_service_account}" --role='roles/iap.httpsResourceAccessor'
+    echo
 }
 
 grant_iap_permissions() {
@@ -130,13 +135,13 @@ grant_iap_permissions() {
 }
 
 if confirm "Do you acknowledge and wish to proceed (Yy/Nn)?" ; then
-    echo ""
+    echo
     read -p "Enter the Project Id where the BQ Export is (the user deploying Co-op4All must have at least Editor access in the BQ Export project): " -r BQ_EXPORT_PROJECT_ID
-    echo ""
+    echo
     echo "BigQuery Export Project: " $BQ_EXPORT_PROJECT_ID
-    echo ""
+    echo
     if confirm "Please confirm that the provided information is correct. Continue (Yy/Nn)?" ; then
-        echo ""
+        echo
         enable_services
         deploy_frontend
         deploy_api_service
