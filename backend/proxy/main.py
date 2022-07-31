@@ -38,7 +38,7 @@ def make_iap_request(url, client_id, method='GET'):
     if resp.status_code == 403:
         raise Exception('Service account does not have permission to '
                         'access the IAP-protected application.')
-    elif resp.status_code != 200:   
+    elif resp.status_code != 200:
         raise Exception(
             'Bad response from application: {!r} / {!r} / {!r}'.format(
                 resp.status_code, resp.headers, resp.text))
@@ -61,12 +61,12 @@ def get_ads_conversions(name):
     PROJECT_ID = os.environ.get('GOOGLE_CLOUD_PROJECT')
     URL = f'https://api-service-dot-{PROJECT_ID}.appspot.com' \
           f'/api/scheduler/get_google_ads_conversions/{name}'
-    
+
     try:
         conversions = make_iap_request(URL, IAP_CLIENT_ID)
     except Exception as error:
         return f'Failed to get conversions: {error}', 500
-    response = Response(response=conversions, 
+    response = Response(response=conversions,
                         status=200, mimetype='text/csv')
     return response
 
