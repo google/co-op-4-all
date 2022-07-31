@@ -214,40 +214,42 @@ class CoopService():
             retailer_name = retailer_config.get('name')
             bq_ga_table = retailer_config.get('bq_ga_table')
             if self.ga_table_ready(retailer_config):
-                time_zone = retailer_config.get('time_zone')
-                current_date = datetime.now(ZoneInfo(time_zone))
-                retailer_is_active = retailer_config.get('is_active')
-
-                if self.retailer_ready(retailer_config) and retailer_is_active:
-                    logger.info(f'CoopService - GA table {bq_ga_table} ready,' \
-                        f'retailer ready and not updated today. Updating retailer {retailer_name}...')
-                    self.bq_client.update('RetailerConfig', retailer_config)
-                    retailer_config['bq_updated_at'] = current_date
-                    self.ds_client.update('RetailerConfig', retailer_config)
-                    logger.info(
-                        f'CoopService - Updated retailer' \
-                        f'{retailer_name} all_clicks and all_transactions tables.')
-                else:
-                    logger.info(f'CoopService - Updating coop configs under retailer {retailer_name}' \
-                        'if ready and not updated today...')
-                    for coop_config in coop_configs:
-                        coop_config_name = coop_config.get('name')
-                        coop_config_is_active = coop_config.get('is_active')
-                        if coop_config['retailer_name'] == retailer_name and coop_config_is_active:
-
-                            if self.coop_campaign_ready(retailer_config, coop_config):
-                                logger.info(f'CoopService - coop config ready and not updated today.' \
-                                    f'Updating coop config {coop_config_name}...')
-                                self.bq_client.update('CoopCampaignConfig', coop_config)
-                                logger.info(
-                                    f'CoopService - Updated coop config' \
-                                    f'{coop_config_name} table.')
-                            else:
-                                logger.info(f'CoopService - Coop config {coop_config_name} was not updated since' \
-                                    'it was not ready or it was already updated.')
+                pass
+                # TODO: actual tables update should be here once the the BQ delay is fixed
             else:
-                logger.info(f'CoopService - Retailer {retailer_name} was not updated since' \
-                    f'the GA table {bq_ga_table} was not ready.')
+                logger.info(f'INFO: The GA table {bq_ga_table} was not ready.')
+            # TODO: Move this code inside the ga_table_ready condition once the BQ delay is fixed
+            time_zone = retailer_config.get('time_zone')
+            current_date = datetime.now(ZoneInfo(time_zone))
+            retailer_is_active = retailer_config.get('is_active')
+            # Check if retailer has not been updated today, if not, update retailer tables all_transactions/clicks
+            if self.retailer_ready(retailer_config) and retailer_is_active:
+                logger.info(f'CoopService - GA table {bq_ga_table} ready,' \
+                    f'retailer ready and not updated today. Updating retailer {retailer_name}...')
+                self.bq_client.update('RetailerConfig', retailer_config)
+                retailer_config['bq_updated_at'] = current_date
+                self.ds_client.update('RetailerConfig', retailer_config)
+                logger.info(
+                    f'CoopService - Updated retailer' \
+                    f'{retailer_name} all_clicks and all_transactions tables.')
+            else:
+                logger.info(f'CoopService - Updating coop configs under retailer {retailer_name}' \
+                    'if ready and not updated today...')
+                for coop_config in coop_configs:
+                    coop_config_name = coop_config.get('name')
+                    coop_config_is_active = coop_config.get('is_active')
+                    if coop_config['retailer_name'] == retailer_name and coop_config_is_active:
+
+                        if self.coop_campaign_ready(retailer_config, coop_config):
+                            logger.info(f'CoopService - coop config ready and not updated today.' \
+                                f'Updating coop config {coop_config_name}...')
+                            self.bq_client.update('CoopCampaignConfig', coop_config)
+                            logger.info(
+                                f'CoopService - Updated coop config' \
+                                f'{coop_config_name} table.')
+                        else:
+                            logger.info(f'CoopService - Coop config {coop_config_name} was not updated since' \
+                                'it was not ready or it was already updated.')
 
     def get_google_ads_conversions(self, name):
         '''
