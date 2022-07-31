@@ -119,7 +119,7 @@ grant_permissions_to_default_service_account() {
     echo
     echo "Granting IAP-secured Web App User role to the App Engine default service account ${default_service_account} in the project ${GOOGLE_CLOUD_PROJECT}..."
     gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
-    --member="serviceAccount:${default_service_account}" --role='roles/bigquery.dataViewer'
+    --member="serviceAccount:${default_service_account}" --role='roles/iap.httpsResourceAccessor'
     echo
 }
 
