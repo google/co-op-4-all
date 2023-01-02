@@ -38,7 +38,7 @@ class DV360CMService():
 
     def __build_dv360_cm_service(self, credentials):
         '''Creates the DV60/CM service'''
-        self.service = discovery.build('dfareporting', 'v3.5', credentials=credentials)
+        self.service = discovery.build('dfareporting', 'v4', credentials=credentials)
 
     def __build_conversions(self, conversions, floodlight_activity_id, floodlight_configuration_id):
         ''' Builds a list of offline conversions in the correct format for the request.
@@ -62,7 +62,7 @@ class DV360CMService():
                 'floodlightActivityId': floodlight_activity_id,
                 'floodlightConfigurationId': floodlight_configuration_id,
                 'ordinal': 1,
-                'timestampMicros': conversion['Conversion_Timestamp'],
+                'timestampMicros': conversion['Conversion_Timestamp'] * 10e5,
                 'dclid': conversion['Google_Click_ID'],
                 "quantity": conversion['Conversion_Quantity'],
                 "value": conversion['Conversion_Value']
