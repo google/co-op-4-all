@@ -21,7 +21,10 @@
 
 SELECT
     coop_dclid as Google_Click_ID,
-    'Offline_Conversions_{{ params['name'] }}_Co-Op4All' AS Conversion_Name,
+    CASE
+        WHEN event_name IS NULL THEN 'Offline_Conversions_{{ params['name'] }}_Co-Op4All'
+        ELSE CONCAT('{{ params['name'] }}_', event_name, '_Co-Op4All')
+    END AS Conversion_Name,
     transaction_timestamp AS Conversion_Timestamp,
     SUM(quantity) AS Conversion_Quantity,
     SUM(item_revenue) AS Conversion_Value,
@@ -31,5 +34,5 @@ WHERE
     transaction_datetime BETWEEN CAST(FORMAT_DATE('%Y-%m-%d', DATE_SUB(CURRENT_DATE(), INTERVAL 5 DAY)) AS DATE)
     AND CAST(FORMAT_DATE('%Y-%m-%d', CURRENT_DATE()) AS DATE)
     AND coop_dclid IS NOT NULL
-GROUP BY coop_dclid, transaction_timestamp
+GROUP BY coop_dclid, transaction_timestamp, event_name
 ORDER by transaction_timestamp

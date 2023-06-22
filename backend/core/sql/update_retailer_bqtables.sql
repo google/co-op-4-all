@@ -29,6 +29,11 @@ SET next_partition = ( -- Get latest created/existing partition in BQ (the date 
       AND partition_id != '__NULL__'
 );
 
+-- Version: Ecommerce events.
+ALTER TABLE {{ params['name']}}.all_transactions
+    ADD COLUMN IF NOT EXISTS event_name STRING;
+-- IMPORTANT: future new columns should be added one after each alter so the insert/select below follows columns order.
+
 INSERT
   {{ params['name'] }}.all_transactions
 SELECT DISTINCT
@@ -43,10 +48,11 @@ SELECT DISTINCT
   it.item_brand,
   it.quantity,
   it.price,
-  it.item_revenue
+  it.item_revenue,
+  event_name
 FROM `{{ params['bq_ga_table'] }}`, UNNEST(items) it
 WHERE
-  event_name = 'purchase'
+  event_name IN ('purchase', 'add_to_cart', 'begin_checkout', 'view_item')
   AND _TABLE_SUFFIX BETWEEN FORMAT_DATE('%Y%m%d', next_partition)
   AND FORMAT_DATE('%Y%m%d', latest_partition);
 

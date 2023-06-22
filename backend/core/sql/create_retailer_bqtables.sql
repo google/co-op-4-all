@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS
     item_brand STRING,
     quantity INT64,
     price FLOAT64,
-    item_revenue FLOAT64
+    item_revenue FLOAT64,
+    event_name STRING
 )
 PARTITION BY
   transaction_date
@@ -54,10 +55,11 @@ SELECT DISTINCT
   it.item_brand,
   it.quantity,
   it.price,
-  it.item_revenue
+  it.item_revenue,
+  event_name
 FROM `{{ params['bq_ga_table'] }}`, UNNEST(items) it
 WHERE
-  event_name = 'purchase'
+  event_name IN ('purchase', 'add_to_cart', 'begin_checkout', 'view_item')
   AND _TABLE_SUFFIX BETWEEN FORMAT_DATE('%Y%m%d',DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY))
   AND FORMAT_DATE('%Y%m%d',CURRENT_DATE('{{ params['time_zone'] }}'));
 
