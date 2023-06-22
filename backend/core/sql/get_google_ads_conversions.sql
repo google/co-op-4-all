@@ -23,6 +23,7 @@
 
 SELECT
     coop_gclid as Google_Click_ID,
+    -- backward compatibility with previous version without events
     CASE
         WHEN event_name IS NULL THEN 'Offline_Conversions_{{ params['name'] }}_Co-Op4All'
         ELSE CONCAT('{{ params['name'] }}_', event_name, '_Co-Op4All')
