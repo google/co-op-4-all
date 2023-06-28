@@ -31,7 +31,10 @@ is not formally supported.***
 
 ## 1. Requirements
 
-The transaction_id must be tagged in each event since It is still necessary for deduplication proposes. As It currently works with the purchase event, a transaction_id could involve various items for each conversion.
+Since this version, it is necessary to create new conversion actions to be imported from available events: purchase, add_to_cart, begin_checkout, view_item.
+Following [this](https://github.com/google/co-op-4-all/wiki/Conversion-Import-Configuration-Process-in-Google-Ads) guide and the new conversion naming: {{ params['name'] }}_', event_name, '_Co-Op4All
+
+Being {{ params['name'] }} the Coop Config name configured and event_name for selected conversion. E.g. 'MyCoopBrand_purchase_Co-Op4All
 
 ## 2. Installation
 

@@ -63,6 +63,12 @@ WHERE
   AND _TABLE_SUFFIX BETWEEN FORMAT_DATE('%Y%m%d',DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY))
   AND FORMAT_DATE('%Y%m%d',CURRENT_DATE('{{ params['time_zone'] }}'));
 
+-- transaction_id is mandatory just for the purchase event because of deduplication proposes. if it is not set, the purchase will not be considered.
+-- If it is not set for the others events, those are set randomly.
+UPDATE {{ params['name'] }}.all_transactions
+SET transaction_id = CONCAT('autogen-', generate_uuid())
+WHERE event_name != 'purchase' AND transaction_id IS NULL;
+
 
 CREATE TABLE IF NOT EXISTS
   {{ params['name'] }}.all_clicks(

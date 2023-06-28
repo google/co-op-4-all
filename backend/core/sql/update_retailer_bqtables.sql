@@ -56,6 +56,12 @@ WHERE
   AND _TABLE_SUFFIX BETWEEN FORMAT_DATE('%Y%m%d', next_partition)
   AND FORMAT_DATE('%Y%m%d', latest_partition);
 
+-- transaction_id is mandatory just for the purchase event because of deduplication proposes. if it is not set, the purchase will not be considered.
+-- If it is not set for the others events, those are set randomly.
+UPDATE {{ params['name'] }}.all_transactions
+SET transaction_id = CONCAT('autogen-', generate_uuid())
+WHERE event_name != 'purchase' AND transaction_id IS NULL;
+
 INSERT
   {{ params['name'] }}.all_clicks
 SELECT
