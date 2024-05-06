@@ -1,10 +1,10 @@
 Flask==2.2.5
-pydantic==1.10.9
+pydantic==1.10.13
 google-cloud-datastore==2.1.2
 google-cloud-bigquery==2.20.0
-Jinja2==3.0.1
+Jinja2==3.1.4
 pandas==1.2.5
-pyarrow==4.0.1
+pyarrow==14.0.1
 google-cloud-logging==2.5.0
 google-api-python-client==2.65.0
 oauth2client==4.1.3
