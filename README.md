@@ -1,4 +1,4 @@
-# Co-op4All - Branch: Ecommerce events
+# Co-op4All
 
 This branch add some recommended ecommerce events (purchase, begin_checkout, add_to_cart, view_item) to co-op backend solution.
 
