@@ -66,7 +66,7 @@ WHERE
 -- transaction_id is mandatory just for the purchase event because of deduplication proposes. if it is not set, the purchase will not be considered.
 -- If it is not set for the others events, those are set randomly.
 UPDATE {{ params['name'] }}.all_transactions
-SET transaction_id = CONCAT('autogen-', transaction_timestamp)
+SET transaction_id = CONCAT('autogen-', generate_uuid())
 WHERE event_name != 'purchase' AND transaction_id IS NULL;
 
 
