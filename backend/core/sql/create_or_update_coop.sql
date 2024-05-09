@@ -56,7 +56,7 @@ SELECT
   item_brand,
   quantity,
   ROUND(price, 2) AS price,
-  ROUND(item_revenue, 2) AS item_revenue,
+  ROUND(quantity * price, 2) AS item_revenue,
   '{{ params['name'] }}' AS coop_name,
   event_name
 FROM (
