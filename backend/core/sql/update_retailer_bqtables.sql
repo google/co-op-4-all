@@ -29,6 +29,11 @@ SET next_partition = ( -- Get latest created/existing partition in BQ (the date 
       AND partition_id != '__NULL__'
 );
 
+-- Version: Ecommerce events.
+ALTER TABLE {{ params['name']}}.all_transactions
+    ADD COLUMN IF NOT EXISTS event_name STRING;
+-- IMPORTANT: future new columns should be added one after each alter so the insert/select below follows columns order.
+
 INSERT
   {{ params['name'] }}.all_transactions
 SELECT DISTINCT
@@ -43,12 +48,19 @@ SELECT DISTINCT
   it.item_brand,
   it.quantity,
   it.price,
-  it.item_revenue
+  it.item_revenue,
+  event_name
 FROM `{{ params['bq_ga_table'] }}`, UNNEST(items) it
 WHERE
-  event_name = 'purchase'
+  event_name IN ('purchase', 'add_to_cart', 'begin_checkout', 'view_item')
   AND _TABLE_SUFFIX BETWEEN FORMAT_DATE('%Y%m%d', next_partition)
   AND FORMAT_DATE('%Y%m%d', latest_partition);
+
+-- transaction_id is mandatory just for the purchase event because of deduplication proposes. if it is not set, the purchase will not be considered.
+-- If it is not set for the others events, those are set randomly.
+UPDATE {{ params['name'] }}.all_transactions
+SET transaction_id = CONCAT('autogen-', generate_uuid())
+WHERE event_name != 'purchase' AND transaction_id IS NULL;
 
 INSERT
   {{ params['name'] }}.all_clicks
@@ -66,9 +78,9 @@ FROM (
     PARSE_DATE('%Y%m%d', event_date) AS click_date,
     DATETIME(TIMESTAMP_MICROS(event_timestamp),'{{ params['time_zone'] }}') event_datetime,
     (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_number') as session_number,
-    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'coop_campaign') as coop_campaign,
-    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'coop_gclid') as coop_gclid,
-    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'coop_dclid') as coop_dclid
+    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'campaign') as coop_campaign,
+    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'gclid') as coop_gclid,
+    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'dclid') as coop_dclid
   FROM
     `{{ params['bq_ga_table'] }}`
   WHERE
