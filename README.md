@@ -26,9 +26,10 @@ is not formally supported.***
   - [2. Requirements](#2-requirements)
     - [2.1. APIs](#21-apis)
   - [3. Supported Offline Conversion Import Integrations](#3-supported-offline-conversion-import-integrations)
-  - [4. Configure the OAuth Screen](#4-configure-the-oauth-screen)
+  - [4. Configure the OAuth Consent Screen](#4-configure-the-oauth-consent-screen)
   - [5. Deployment](#5-deployment)
   - [6. Secure the App using Identity Aware Proxy](#6-secure-the-app-using-identity-aware-proxy)
+  - [7. Configure destinations](#7-configure-destinations)
   - [Additional Information](#additional-information)
     - [Get the Identity Aware Proxy Client Id](#get-the-identity-aware-proxy-client-id)
     - [Grant permissions to the App Engine default service account](#grant-permissions-to-the-app-engine-default-service-account)
@@ -117,6 +118,12 @@ in order to work for the Offline Conversions Import setup in the Google Ads plat
 To open the Google Ads proxy service, select the **checkbox** next to the **ads-conversion-proxy** service and add a new user using the menu on the right.
 Click on the **Add principal** button, and type **allUsers**, then select the **IAP-secured Web App User** role and click **Save**.
    - The changes might take approximately 5 mins to take effect.
+  
+## 7. Configure destinations
+
+For more details go to the Wiki:
+  - [Conversion Import Configuration Process in Campaign Manager DV360](https://github.com/google/co-op-4-all/wiki/Conversion-Import-Configuration-Process-in-Campaign-Manager-DV360)
+  - [Conversion Import Configuration Process in Google Ads](https://github.com/google/co-op-4-all/wiki/Conversion-Import-Configuration-Process-in-Google-Ads)
 
 ## Additional Information
 

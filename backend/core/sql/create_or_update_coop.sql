@@ -20,7 +20,6 @@ limitations under the License.
 -- Filters specific utm_campaings from all_clicks.
 -- Filters sessions that occurs within an attribution_window (in days) before a transaction.
 
-
 CREATE OR REPLACE TABLE
   {{ params['retailer_name'] }}.{{ params['name']}} AS -- The table is always replaced with new data
 
@@ -57,8 +56,9 @@ SELECT
   item_brand,
   quantity,
   ROUND(price, 2) AS price,
-  ROUND(item_revenue, 2) AS item_revenue,
-  '{{ params['name'] }}' AS coop_name
+  ROUND(quantity * price, 2) AS item_revenue,
+  '{{ params['name'] }}' AS coop_name,
+  event_name
 FROM (
   SELECT
     transaction_id,

@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS
     item_brand STRING,
     quantity INT64,
     price FLOAT64,
-    item_revenue FLOAT64
+    item_revenue FLOAT64,
+    event_name STRING
 )
 PARTITION BY
   transaction_date
@@ -54,12 +55,19 @@ SELECT DISTINCT
   it.item_brand,
   it.quantity,
   it.price,
-  it.item_revenue
+  it.item_revenue,
+  event_name
 FROM `{{ params['bq_ga_table'] }}`, UNNEST(items) it
 WHERE
-  event_name = 'purchase'
+  event_name IN ('purchase', 'add_to_cart', 'begin_checkout', 'view_item')
   AND _TABLE_SUFFIX BETWEEN FORMAT_DATE('%Y%m%d',DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY))
   AND FORMAT_DATE('%Y%m%d',CURRENT_DATE('{{ params['time_zone'] }}'));
+
+-- transaction_id is mandatory just for the purchase event because of deduplication proposes. if it is not set, the purchase will not be considered.
+-- If it is not set for the others events, those are set randomly.
+UPDATE {{ params['name'] }}.all_transactions
+SET transaction_id = CONCAT('autogen-', transaction_timestamp)
+WHERE event_name != 'purchase' AND transaction_id IS NULL;
 
 
 CREATE TABLE IF NOT EXISTS
@@ -93,9 +101,9 @@ FROM (
     PARSE_DATE('%Y%m%d', event_date) AS click_date,
     DATETIME(TIMESTAMP_MICROS(event_timestamp),'{{ params['time_zone'] }}') event_datetime,
     (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_number') as session_number,
-    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'coop_campaign') as coop_campaign,
-    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'coop_gclid') as coop_gclid,
-    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'coop_dclid') as coop_dclid
+    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'campaign') as coop_campaign,
+    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'gclid') as coop_gclid,
+    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'dclid') as coop_dclid
   FROM
     `{{ params['bq_ga_table'] }}`
   WHERE
