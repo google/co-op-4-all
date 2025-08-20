@@ -162,3 +162,5 @@ In case of any errors or **code update**, each service can be deployed individua
 
 In order to reduce Google Cloud costs, the **all_transactions** and **all_clicks** BQ tables have an expiration time of 90 days by default, which means that the data is going to be deleted after 90 days. The expiration for the tables can be configured when creating a Retailer in the App Engine UI. The expiration days configuration is the **Co-op Max Backfill** field in the Retailers tab and it has a time range of 30-180 days. It is recommended to create a backup if the data will be used after this period.
 Keep in mind that the retailers cannot be modified after creation, so please verify this value before creating a retailer or the retailer would need to be removed and re-created.
+
+## Update to mantain this repo active
