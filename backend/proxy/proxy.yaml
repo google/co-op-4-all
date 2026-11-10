@@ -18,6 +18,7 @@ runtime: python39
 
 env_variables:
   IAP_CLIENT_ID: "$IAP_CLIENT_ID"
+  ADS_PROXY_TOKEN: "$ADS_PROXY_TOKEN"
 
 handlers:
 - url: /.*

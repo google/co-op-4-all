@@ -22,6 +22,13 @@ class Filter(BaseModel):
     type: str
     data: conlist(str, min_items=1)
 
+    @validator('type')
+    def type_must_be_allowed_column(cls, v):
+        allowed = ('item_brand', 'item_name', 'item_id')
+        if v not in allowed:
+            raise ValueError("unexpected value; permitted: %s" % (allowed,))
+        return v
+
 
 class RetailerConfig(BaseModel):
     name: constr(regex="^[A-Za-z0-9\_]{3,50}$")

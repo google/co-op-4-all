@@ -113,11 +113,10 @@ Follow the steps below to close the application and create users.
    - It is important to also add the email of the user deploying the solution (in case the deployment script failed to do so), even if they are owner of the project.
 4. Repeat the steps 2 and 3 for other users.
 5. Go to the **IAP page** and now close the application by toggling (if not done yet) the **IAP** option next to the **App Engine App** collapsible menu.
-6. Now all the services will be closed using IAP, but the Google Ads proxy service needs to be open
-in order to work for the Offline Conversions Import setup in the Google Ads platform.
-To open the Google Ads proxy service, select the **checkbox** next to the **ads-conversion-proxy** service and add a new user using the menu on the right.
-Click on the **Add principal** button, and type **allUsers**, then select the **IAP-secured Web App User** role and click **Save**.
-   - The changes might take approximately 5 mins to take effect.
+6. All services (including `frontend`, `api-service`, and `ads-conversions-proxy`) are secured behind Identity-Aware Proxy (IAP). All endpoints require authentication.
+   - Restrict access to authenticated users and authorized service accounts only by adding them as principals with the **IAP-secured Web App User** role (`roles/iap.httpsResourceAccessor`).
+   - For conversion upload requests to `/google_ads_conversions/<name>`, callers must be authenticated via IAP or provide the configured shared-secret token (`ADS_PROXY_TOKEN`) via `?key=<ADS_PROXY_TOKEN>`.
+     `https://ads-conversions-proxy-dot-<PROJECT_ID>.appspot.com/google_ads_conversions/<CONFIG_NAME>?key=<ADS_PROXY_TOKEN>`
   
 ## 7. Configure destinations
 
@@ -153,7 +152,7 @@ In case of any errors or **code update**, each service can be deployed individua
      - IMPORTANT: build the Angular files using ```ng build --configuration=production``` before deploying the frontend.
    - Deploy the **api-service** - API for CRUD and processing operations - ```gcloud app deploy backend.yaml```
    - Deploy the **ads-conversions-proxy** service - Proxy to retrieve the Google Ads Conversions - ```gcloud app deploy proxy.yaml```
-     - IMPORTANT: Replace the IAP_CLIENT_ID in the proxy.yaml file before deploying the proxy.
+     - IMPORTANT: Replace the IAP_CLIENT_ID and ADS_PROXY_TOKEN in the proxy.yaml file before deploying the proxy.
    - Deploy the dispatch ```gcloud app deploy dispatch.yaml``` to redirect the requests to the correct service.
      - IMPORTANT: After deploying a new version of a service, always run this command.
    - Deploy the crons ```gcloud app deploy cron.yaml```

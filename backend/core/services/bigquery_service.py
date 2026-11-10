@@ -21,6 +21,8 @@ from jinja2 import Template
 LOGGER_NAME = 'coop4all.bigquery_service'
 logger = utils.get_coop_logger(LOGGER_NAME)
 
+ALLOWED_FILTER_COLUMNS = ('item_brand', 'item_name', 'item_id')
+
 class BigqueryService():
     def __init__(self):
         self.client = bigquery.Client()
@@ -35,6 +37,15 @@ class BigqueryService():
         Returns:
             A string representing the sql query.
         """
+
+        if query_params and 'filters' in query_params:
+            for item in query_params.get('filters') or []:
+                col_type = item.get('type') if isinstance(item, dict) else getattr(item, 'type', None)
+                if col_type not in ALLOWED_FILTER_COLUMNS:
+                    raise ValueError(
+                        f"Invalid filter column identifier: {col_type!r}. "
+                        f"Permitted columns: {ALLOWED_FILTER_COLUMNS}"
+                    )
 
         path = os.path.join(os.path.dirname(__file__), os.pardir, sql_file)
         with open(path, 'r') as f:
