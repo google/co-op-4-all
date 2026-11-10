@@ -12,13 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import hmac
 import os
 import requests
-from flask import Flask, Response
+from flask import Flask, Response, request
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token
 
 app = Flask(__name__)
+
+ADS_PROXY_TOKEN = os.environ.get('ADS_PROXY_TOKEN')
 
 def make_iap_request(url, client_id, method='GET'):
     '''Makes a request to an application protected by Identity-Aware Proxy.
@@ -56,6 +59,20 @@ def get_ads_conversions(name):
         Returns:
         conversions (str): a list of Google Ads conversions in csv format.
     '''
+
+    # Require authentication: this endpoint must never be open to anonymous or unauthenticated callers.
+    # Authenticate via IAP identity headers or configured shared-secret token (ADS_PROXY_TOKEN).
+    supplied_key = request.args.get('key', '')
+    token = ADS_PROXY_TOKEN or os.environ.get('ADS_PROXY_TOKEN')
+
+    if supplied_key:
+        if not token or not hmac.compare_digest(supplied_key, token):
+            return 'Forbidden', 403
+    else:
+        iap_user = request.headers.get('X-Goog-Authenticated-User-Email')
+        iap_jwt = request.headers.get('X-Goog-IAP-JWT-Assertion')
+        if not iap_user and not iap_jwt:
+            return 'Forbidden', 403
 
     IAP_CLIENT_ID = os.environ.get('IAP_CLIENT_ID')
     PROJECT_ID = os.environ.get('GOOGLE_CLOUD_PROJECT')

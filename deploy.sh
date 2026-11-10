@@ -81,6 +81,8 @@ deploy_proxy() {
     echo
     read -p "Enter the IAP Client Id to continue: " -r IAP_CLIENT_ID
     export IAP_CLIENT_ID="$IAP_CLIENT_ID"
+    read -p "Enter the Ads Proxy Token (shared secret for Google Ads conversions upload): " -r ADS_PROXY_TOKEN
+    export ADS_PROXY_TOKEN="$ADS_PROXY_TOKEN"
     cd proxy/
     envsubst < proxy.yaml | sponge proxy.yaml
     gcloud app deploy proxy.yaml --quiet
